@@ -36,7 +36,7 @@ def main(args, ITE=0):
 
     mask = archs_utils.make_mask(model)
     optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-4)
-    criterion = nn.CrossEntropyLoss()  # Default was F.nll_loss
+    criterion = nn.CrossEntropyLoss()
 
     for name, param in model.named_parameters():
         print(name, param.size())
@@ -76,31 +76,31 @@ def main(args, ITE=0):
 
             # Frequency for Testing
             if iter_ % args.valid_freq == 0:
-                accuracy = test(model, test_loader, criterion)
+                test_loss, test_accuracy = test(model, test_loader, criterion)
 
                 # Save Weights
-                if accuracy > best_accuracy:
-                    best_accuracy = accuracy
+                if test_accuracy > best_accuracy:
+                    best_accuracy = test_accuracy
                     utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
                     torch.save(model,f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/{_ite}_model_{args.prune_type}.pth.tar")
 
             # ----------------------------------- CORE --------- TRAINING ---------------------------------------------
-            loss = train(model, train_loader, optimizer, criterion)
-            all_loss[iter_] = loss
-            all_accuracy[iter_] = accuracy
+            train_loss, train_acc = train(model, train_loader, optimizer, criterion)
+            all_loss[iter_] = test_loss
+            all_accuracy[iter_] = test_accuracy
             
             # Frequency for Printing Accuracy and Loss
             if iter_ % args.print_freq == 0:
                 pbar.set_description(
-                    f'Train Epoch: {iter_}/{args.end_iter} Loss: {loss:.6f} Accuracy: {accuracy:.2f}% Best Accuracy: {best_accuracy:.2f}%')       
+                    f'Train Epoch: {iter_}/{args.end_iter} Loss: {test_loss:.6f} Accuracy: {test_accuracy:.2f}% Best Accuracy: {best_accuracy:.2f}%')
 
         writer.add_scalar('Accuracy/test', best_accuracy, comp1)
         bestacc[_ite]=best_accuracy
 
         # Plotting Loss (Training), Accuracy (Testing), Iteration Curve
         #NOTE Loss is computed for every iteration while Accuracy is computed only for every {args.valid_freq} iterations. Therefore Accuracy saved is constant during the uncomputed iterations.
-        plots_utils.plot(args, all_loss, comp1, "Loss")
-        plots_utils.plot(args, all_accuracy, comp1, "Accuracy")
+        plots_utils.plot(args, all_loss, comp1, "Test Loss")
+        plots_utils.plot(args, all_accuracy, comp1, "Test Accuracy")
 
         # Dump Plot values
         utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
@@ -128,12 +128,16 @@ def main(args, ITE=0):
 def train(model, train_loader, optimizer, criterion):
     EPS = 1e-6
     model.train()
+    train_loss = 0
+    correct = 0
     for batch_idx, (imgs, targets) in enumerate(train_loader):
         optimizer.zero_grad()
         imgs, targets = imgs.to(args.device), targets.to(args.device)
         output = model(imgs)
-        train_loss = criterion(output, targets)
-        train_loss.backward()
+        loss = criterion(output, targets)
+        pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
+        correct += pred.eq(targets.data.view_as(pred)).sum().item()
+        loss.backward()
 
         # Freezing Pruned weights by making their gradients Zero
         for name, p in model.named_parameters():
@@ -143,7 +147,11 @@ def train(model, train_loader, optimizer, criterion):
                 grad_tensor = np.where(tensor < EPS, 0, grad_tensor)
                 p.grad.data = torch.from_numpy(grad_tensor).to(args.device)
         optimizer.step()
-    return train_loss.item()
+
+    train_loss /= len(train_loader.dataset)
+    train_accuracy = 100. * correct / len(train_loader.dataset)
+
+    return train_loss, train_accuracy
 
 
 def test(model, test_loader, criterion):
@@ -154,19 +162,19 @@ def test(model, test_loader, criterion):
         for data, target in test_loader:
             data, target = data.to(args.device), target.to(args.device)
             output = model(data)
-            test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
+            test_loss += criterion(output, target).item()
             pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
             correct += pred.eq(target.data.view_as(pred)).sum().item()
         test_loss /= len(test_loader.dataset)
         accuracy = 100. * correct / len(test_loader.dataset)
-    return accuracy
+    return test_loss, accuracy
 
 
 if __name__=="__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument("--lr",default= 1.2e-3, type=float, help="Learning rate")
-    parser.add_argument("--batch_size", default=60, type=int)
+    parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--start_iter", default=0, type=int)
     parser.add_argument("--end_iter", default=100, type=int)
     parser.add_argument("--print_freq", default=1, type=int)
@@ -176,8 +184,8 @@ if __name__=="__main__":
     # parser.add_argument("--gpu", default="0", type=str)
     parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10 | fashionmnist | cifar100")
     parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5 | alexnet | vgg16 | resnet18 | densenet121")
-    parser.add_argument("--prune_percent", default=10, type=int, help="Pruning percent")
-    parser.add_argument("--prune_iterations", default=35, type=int, help="Pruning iterations count")
+    parser.add_argument("--prune_percent", default=90, type=int, help="Pruning percent")
+    parser.add_argument("--prune_iterations", default=1, type=int, help="Pruning iterations count")
     
     args = parser.parse_args()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
