@@ -185,7 +185,7 @@ if __name__=="__main__":
     parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10 | fashionmnist | cifar100")
     parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5 | alexnet | vgg16 | resnet18 | densenet121")
     parser.add_argument("--prune_percent", default=90, type=int, help="Pruning percent")
-    parser.add_argument("--prune_iterations", default=1, type=int, help="Pruning iterations count")
+    parser.add_argument("--prune_iterations", default=2, type=int, help="Pruning iterations count")
     
     args = parser.parse_args()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
