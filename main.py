@@ -29,7 +29,6 @@ sns.set_style('darkgrid')
 
 
 def main(args, ITE=0):
-    args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     reinit = True if args.prune_type=="reinit" else False
 
     train_loader, test_loader = data_utils.getData(args)
@@ -216,18 +215,18 @@ if __name__=="__main__":
     parser.add_argument("--valid_freq", default=1, type=int)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--prune_type", default="lt", type=str, help="lt | reinit")
-    parser.add_argument("--gpu", default="0", type=str)
+    # parser.add_argument("--gpu", default="0", type=str)
     parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10 | fashionmnist | cifar100")
     parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5 | alexnet | vgg16 | resnet18 | densenet121")
     parser.add_argument("--prune_percent", default=10, type=int, help="Pruning percent")
     parser.add_argument("--prune_iterations", default=35, type=int, help="Pruning iterations count")
-
     
     args = parser.parse_args()
+    args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
-    os.environ["CUDA_VISIBLE_DEVICES"]=args.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"]= "1" if args.device == "cuda" else "0"  # args.gpu
     
     
     #FIXME resample
