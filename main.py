@@ -1,4 +1,3 @@
-#ANCHOR Importing Libraries
 import argparse
 import copy
 import os
@@ -21,71 +20,21 @@ import pickle
 
 #ANCHOR Custom Libraries
 import utils
+from data import data_utils
+from archs import archs_utils
 
-#ANCHOR Tensorboard initialization
 writer = SummaryWriter()
 
-#ANCHOR Plotting Style
 sns.set_style('darkgrid')
 
-#ANCHOR Endless Dataloader
-#def cycle(iterable):
-#    while True:
-#        for x in iterable:
-#            yield x
 
-#ANCHOR Main
 def main(args, ITE=0):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     reinit = True if args.prune_type=="reinit" else False
 
-    #ANCHOR Data Loader
-    transform=transforms.Compose([transforms.ToTensor(),transforms.Normalize((0.1307,), (0.3081,))])
-    if args.dataset == "mnist":
-        traindataset = datasets.MNIST('../data', train=True, download=True,transform=transform)
-        testdataset = datasets.MNIST('../data', train=False, transform=transform)
-        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet
+    train_loader, test_loader = data_utils.getData(args)
 
-    elif args.dataset == "cifar10":
-        traindataset = datasets.CIFAR10('../data', train=True, download=True,transform=transform)
-        testdataset = datasets.CIFAR10('../data', train=False, transform=transform)      
-        from archs.cifar10 import AlexNet, LeNet5, fc1, vgg, resnet, densenet 
-
-    elif args.dataset == "fashionmnist":
-        traindataset = datasets.FashionMNIST('../data', train=True, download=True,transform=transform)
-        testdataset = datasets.FashionMNIST('../data', train=False, transform=transform)
-        from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet 
-
-    elif args.dataset == "cifar100":
-        traindataset = datasets.CIFAR100('../data', train=True, download=True,transform=transform)
-        testdataset = datasets.CIFAR100('../data', train=False, transform=transform)   
-        from archs.cifar100 import AlexNet, fc1, LeNet5, vgg, resnet  
-
-    else:
-        print("\nWrong Dataset choice \n")
-        exit()
-
-    train_loader = torch.utils.data.DataLoader(traindataset, batch_size=args.batch_size, shuffle=True, num_workers=0,drop_last=False)
-    #train_loader = cycle(train_loader)
-    test_loader = torch.utils.data.DataLoader(testdataset, batch_size=args.batch_size, shuffle=False, num_workers=0,drop_last=True)
-    
-    #ANCHOR Importing Network Architecture
-    global model
-    if args.arch_type == "fc1":
-       model = fc1.fc1().to(device)
-    elif args.arch_type == "lenet5":
-        model = LeNet5.LeNet5().to(device)
-    elif args.arch_type == "alexnet":
-        model = AlexNet.AlexNet().to(device)
-    elif args.arch_type == "vgg16":
-        model = vgg.vgg16().to(device)  
-    elif args.arch_type == "resnet18":
-        model = resnet.resnet18().to(device)   
-    elif args.arch_type == "densenet121":
-        model = densenet.densenet121().to(device)   
-    else:
-        print("\nWrong Model choice\n")
-        exit()
+    model = archs_utils.getModel(args)
 
     #ANCHOR Weight Initialization
     model.apply(weight_init)
@@ -96,7 +45,7 @@ def main(args, ITE=0):
     torch.save(model, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/initial_state_dict_{args.prune_type}.pth.tar")
 
     #ANCHOR Making Initial Mask
-    make_mask(model)
+    mask = make_mask(model)
 
     #ANCHOR Optimizer and Loss
     optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-4)
@@ -113,40 +62,23 @@ def main(args, ITE=0):
     ITERATION = args.prune_iterations
     comp = np.zeros(ITERATION,float)
     bestacc = np.zeros(ITERATION,float)
-    step = 0
     all_loss = np.zeros(args.end_iter,float)
     all_accuracy = np.zeros(args.end_iter,float)
 
 
     for _ite in range(args.start_iter, ITERATION):
         if not _ite == 0:
-            prune_by_percentile(args.prune_percent, resample=resample, reinit=reinit)
+            prune_by_percentile(model, mask, args.prune_percent, resample=resample, reinit=reinit)
             if reinit:
                 model.apply(weight_init)
-                #if args.arch_type == "fc1":
-                #    model = fc1.fc1().to(device)
-                #elif args.arch_type == "lenet5":
-                #    model = LeNet5.LeNet5().to(device)
-                #elif args.arch_type == "alexnet":
-                #    model = AlexNet.AlexNet().to(device)
-                #elif args.arch_type == "vgg16":
-                #    model = vgg.vgg16().to(device)  
-                #elif args.arch_type == "resnet18":
-                #    model = resnet.resnet18().to(device)   
-                #elif args.arch_type == "densenet121":
-                #    model = densenet.densenet121().to(device)   
-                #else:
-                #    print("\nWrong Model choice\n")
-                #    exit()
                 step = 0
                 for name, param in model.named_parameters():
                     if 'weight' in name:
                         weight_dev = param.device
                         param.data = torch.from_numpy(param.data.cpu().numpy() * mask[step]).to(weight_dev)
                         step = step + 1
-                step = 0
             else:
-                original_initialization(mask, initial_state_dict)
+                original_initialization(model, mask, initial_state_dict)
             optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
         print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
 
@@ -269,10 +201,7 @@ def test(model, test_loader, criterion):
     return accuracy
 
 #ANCHOR Prune by Percentile module
-def prune_by_percentile(percent, resample=False, reinit=False,**kwargs):
-        global step
-        global mask
-        global model
+def prune_by_percentile(model, mask, percent, resample=False, reinit=False,**kwargs):
 
         # Calculate percentile value
         step = 0
@@ -292,12 +221,10 @@ def prune_by_percentile(percent, resample=False, reinit=False,**kwargs):
                 param.data = torch.from_numpy(tensor * new_mask).to(weight_dev)
                 mask[step] = new_mask
                 step += 1
-        step = 0
 
 #ANCHOR Function to make an empty mask of the same size as the model
 def make_mask(model):
-    global step
-    global mask
+
     step = 0
     for name, param in model.named_parameters(): 
         if 'weight' in name:
@@ -309,11 +236,10 @@ def make_mask(model):
             tensor = param.data.cpu().numpy()
             mask[step] = np.ones_like(tensor)
             step = step + 1
-    step = 0
+    return mask
 
-def original_initialization(mask_temp, initial_state_dict):
-    global model
-    
+def original_initialization(model, mask_temp, initial_state_dict):
+
     step = 0
     for name, param in model.named_parameters(): 
         if "weight" in name: 
