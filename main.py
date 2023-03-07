@@ -1,31 +1,24 @@
 import argparse
 import copy
-import os
-import sys
 import numpy as np
 from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchvision
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
-import matplotlib.pyplot as plt
 import os
 from tensorboardX import SummaryWriter
-import torchvision.utils as vutils
 import seaborn as sns
-import torch.nn.init as init
 import pickle
 
-#ANCHOR Custom Libraries
+# Custom Libraries
 import utils
 from data import data_utils
 from archs import archs_utils
+from plots import plots_utils
 
 writer = SummaryWriter()
 
-sns.set_style('darkgrid')
+sns.set_style('whitegrid')
 
 
 def main(args, ITE=0):
@@ -43,7 +36,7 @@ def main(args, ITE=0):
 
     mask = archs_utils.make_mask(model)
     optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-4)
-    criterion = nn.CrossEntropyLoss() # Default was F.nll_loss
+    criterion = nn.CrossEntropyLoss()  # Default was F.nll_loss
 
     for name, param in model.named_parameters():
         print(name, param.size())
@@ -91,7 +84,7 @@ def main(args, ITE=0):
                     utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
                     torch.save(model,f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/{_ite}_model_{args.prune_type}.pth.tar")
 
-            # Training
+            # ----------------------------------- CORE --------- TRAINING ---------------------------------------------
             loss = train(model, train_loader, optimizer, criterion)
             all_loss[iter_] = loss
             all_accuracy[iter_] = accuracy
@@ -106,17 +99,8 @@ def main(args, ITE=0):
 
         # Plotting Loss (Training), Accuracy (Testing), Iteration Curve
         #NOTE Loss is computed for every iteration while Accuracy is computed only for every {args.valid_freq} iterations. Therefore Accuracy saved is constant during the uncomputed iterations.
-        #NOTE Normalized the accuracy to [0,100] for ease of plotting.
-        plt.plot(np.arange(1,(args.end_iter)+1), 100*(all_loss - np.min(all_loss))/np.ptp(all_loss).astype(float), c="blue", label="Loss") 
-        plt.plot(np.arange(1,(args.end_iter)+1), all_accuracy, c="red", label="Accuracy") 
-        plt.title(f"Loss Vs Accuracy Vs Iterations ({args.dataset},{args.arch_type})") 
-        plt.xlabel("Iterations") 
-        plt.ylabel("Loss and Accuracy") 
-        plt.legend() 
-        plt.grid(color="gray") 
-        utils.checkdir(f"{os.getcwd()}/plots/lt/{args.arch_type}/{args.dataset}/")
-        plt.savefig(f"{os.getcwd()}/plots/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_LossVsAccuracy_{comp1}.png", dpi=1200) 
-        plt.close()
+        plots_utils.plot(args, all_loss, comp1, "Loss")
+        plots_utils.plot(args, all_accuracy, comp1, "Accuracy")
 
         # Dump Plot values
         utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
@@ -128,29 +112,17 @@ def main(args, ITE=0):
         with open(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_mask_{comp1}.pkl", 'wb') as fp:
             pickle.dump(mask, fp)
         
-        # Making variables into 0
+        # Reseting performance variables
         best_accuracy = 0
-        all_loss = np.zeros(args.end_iter,float)
-        all_accuracy = np.zeros(args.end_iter,float)
+        all_loss = np.zeros(args.end_iter, float)
+        all_accuracy = np.zeros(args.end_iter, float)
 
     # Dumping Values for Plotting
     utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
     comp.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_compression.dat")
     bestacc.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_bestaccuracy.dat")
 
-    # Plotting
-    a = np.arange(args.prune_iterations)
-    plt.plot(a, bestacc, c="blue", label="Winning tickets") 
-    plt.title(f"Test Accuracy vs Unpruned Weights Percentage ({args.dataset},{args.arch_type})") 
-    plt.xlabel("Unpruned Weights Percentage") 
-    plt.ylabel("test accuracy") 
-    plt.xticks(a, comp, rotation ="vertical") 
-    plt.ylim(0,100)
-    plt.legend() 
-    plt.grid(color="gray") 
-    utils.checkdir(f"{os.getcwd()}/plots/lt/{args.arch_type}/{args.dataset}/")
-    plt.savefig(f"{os.getcwd()}/plots/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_AccuracyVsWeights.png", dpi=1200) 
-    plt.close()                    
+    plots_utils.final_plot(args, bestacc, comp)
 
 
 def train(model, train_loader, optimizer, criterion):
