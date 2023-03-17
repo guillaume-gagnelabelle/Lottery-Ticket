@@ -1,6 +1,7 @@
 import torch
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
+from AnimalDataset import AnimalDataset
 
 
 def getData(args):
@@ -20,6 +21,10 @@ def getData(args):
     elif args.dataset == "cifar100":
         traindataset = datasets.CIFAR100('./data', train=True, download=True, transform=transform)
         testdataset = datasets.CIFAR100('./data', train=False, transform=transform)
+
+    elif args.dataset == "animals":
+        traindataset = AnimalDataset('trainclasses.txt', transform)
+        testdataset = AnimalDataset('testclasses.txt', transform)
 
     else:
         print("\nWrong Dataset choice \n")
