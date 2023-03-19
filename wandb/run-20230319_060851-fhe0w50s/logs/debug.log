@@ -1,0 +1,25 @@
+2023-03-19 06:08:51,260 INFO    MainThread:9076 [wandb_setup.py:_flush():76] Configure stats pid to 9076
+2023-03-19 06:08:51,261 INFO    MainThread:9076 [wandb_setup.py:_flush():76] Loading settings from C:\Users\mercu\.config\wandb\settings
+2023-03-19 06:08:51,261 INFO    MainThread:9076 [wandb_setup.py:_flush():76] Loading settings from C:\Users\mercu\Documents\IFT3710\Lottery-Ticket\wandb\settings
+2023-03-19 06:08:51,261 INFO    MainThread:9076 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-03-19 06:08:51,261 INFO    MainThread:9076 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program_relpath': 'main.py', 'program': 'C:\\Users\\mercu\\Documents\\IFT3710\\Lottery-Ticket\\main.py'}
+2023-03-19 06:08:51,262 INFO    MainThread:9076 [wandb_setup.py:_flush():76] Applying login settings: {'api_key': '***REDACTED***'}
+2023-03-19 06:08:51,262 INFO    MainThread:9076 [wandb_init.py:_log_setup():506] Logging user logs to C:\Users\mercu\Documents\IFT3710\Lottery-Ticket\wandb\run-20230319_060851-fhe0w50s\logs\debug.log
+2023-03-19 06:08:51,262 INFO    MainThread:9076 [wandb_init.py:_log_setup():507] Logging internal logs to C:\Users\mercu\Documents\IFT3710\Lottery-Ticket\wandb\run-20230319_060851-fhe0w50s\logs\debug-internal.log
+2023-03-19 06:08:51,264 INFO    MainThread:9076 [wandb_init.py:init():546] calling init triggers
+2023-03-19 06:08:51,264 INFO    MainThread:9076 [wandb_init.py:init():552] wandb.init called with sweep_config: {}
+config: {'lr': 0.0012, 'batch_size': 32, 'start_iter': 0, 'end_iter': 100, 'print_freq': 1, 'valid_freq': 1, 'resume': False, 'prune_type': 'lt', 'dataset': 'mnist', 'arch_type': 'fc1', 'prune_percent': 10, 'prune_iterations': 35, 'device': device(type='cpu')}
+2023-03-19 06:08:51,265 INFO    MainThread:9076 [wandb_init.py:init():602] starting backend
+2023-03-19 06:08:51,265 INFO    MainThread:9076 [wandb_init.py:init():606] setting up manager
+2023-03-19 06:08:51,303 INFO    MainThread:9076 [backend.py:_multiprocessing_setup():106] multiprocessing start_methods=spawn, using: spawn
+2023-03-19 06:08:51,389 INFO    MainThread:9076 [wandb_init.py:init():613] backend started and connected
+2023-03-19 06:08:51,525 INFO    MainThread:9076 [wandb_init.py:init():701] updated telemetry
+2023-03-19 06:08:51,526 INFO    MainThread:9076 [wandb_init.py:init():741] communicating run to backend with 60.0 second timeout
+2023-03-19 06:08:51,969 INFO    MainThread:9076 [wandb_run.py:_on_init():2133] communicating current version
+2023-03-19 06:08:52,075 INFO    MainThread:9076 [wandb_run.py:_on_init():2142] got version response 
+2023-03-19 06:08:52,075 INFO    MainThread:9076 [wandb_init.py:init():789] starting run threads in backend
+2023-03-19 06:08:52,252 INFO    MainThread:9076 [wandb_run.py:_console_start():2114] atexit reg
+2023-03-19 06:08:52,255 INFO    MainThread:9076 [wandb_run.py:_redirect():1969] redirect: SettingsConsole.WRAP_RAW
+2023-03-19 06:08:52,255 INFO    MainThread:9076 [wandb_run.py:_redirect():2034] Wrapping output streams.
+2023-03-19 06:08:52,255 INFO    MainThread:9076 [wandb_run.py:_redirect():2059] Redirects installed.
+2023-03-19 06:08:52,257 INFO    MainThread:9076 [wandb_init.py:init():831] run started, returning control to user process

@@ -1,0 +1,67 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.14.0
+    framework: torch
+    is_jupyter_run: false
+    is_kaggle_kernel: false
+    python_version: 3.10.10
+    start_time: 1679220531.392759
+    t:
+      1:
+      - 1
+      - 41
+      - 55
+      2:
+      - 1
+      - 41
+      - 55
+      3:
+      - 16
+      - 23
+      4: 3.10.10
+      5: 0.14.0
+      8:
+      - 3
+      - 5
+arch_type:
+  desc: null
+  value: fc1
+batch_size:
+  desc: null
+  value: 32
+dataset:
+  desc: null
+  value: mnist
+device:
+  desc: null
+  value: cpu
+end_iter:
+  desc: null
+  value: 100
+lr:
+  desc: null
+  value: 0.0012
+print_freq:
+  desc: null
+  value: 1
+prune_iterations:
+  desc: null
+  value: 35
+prune_percent:
+  desc: null
+  value: 10
+prune_type:
+  desc: null
+  value: lt
+resume:
+  desc: null
+  value: false
+start_iter:
+  desc: null
+  value: 0
+valid_freq:
+  desc: null
+  value: 1

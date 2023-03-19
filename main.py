@@ -10,6 +10,7 @@ from tensorboardX import SummaryWriter
 import seaborn as sns
 import pickle
 from codecarbon import EmissionsTracker
+import wandb
 
 # Custom Libraries
 import utils
@@ -21,8 +22,16 @@ writer = SummaryWriter()
 
 sns.set_style('whitegrid')
 
+wandb.login()
+
 
 def main(args, ITE=0):
+    # Wandb initialization
+    wandb.init(
+        project="Lottery-Ticket", 
+        entity="ift3710-h23", 
+        config=args)
+
     # Carbon tracker initialization
     tracker = EmissionsTracker(project_name="Lottery-Ticket")
     reinit = True if args.prune_type=="reinit" else False
@@ -110,6 +119,9 @@ def main(args, ITE=0):
         all_loss.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_all_loss_{comp1}.dat")
         all_accuracy.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_all_accuracy_{comp1}.dat")
         
+        # Log metrics from your script to W&B
+        wandb.log({"acc": all_accuracy, "loss": all_loss})
+
         # Dumping mask
         utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
         with open(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_mask_{comp1}.pkl", 'wb') as fp:
