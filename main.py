@@ -9,6 +9,7 @@ import os
 from tensorboardX import SummaryWriter
 import seaborn as sns
 import pickle
+from codecarbon import EmissionsTracker
 
 # Custom Libraries
 import utils
@@ -22,6 +23,8 @@ sns.set_style('whitegrid')
 
 
 def main(args, ITE=0):
+    # Carbon tracker initialization
+    tracker = EmissionsTracker(project_name="Lottery-Ticket")
     reinit = True if args.prune_type=="reinit" else False
 
     train_loader, test_loader = data_utils.getData(args)
@@ -123,6 +126,14 @@ def main(args, ITE=0):
     bestacc.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_bestaccuracy.dat")
 
     plots_utils.final_plot(args, bestacc, comp)
+
+    # Carbon Emissions
+    tracker.stop()
+    tracker.add_metric("Energy Consumption (Joules)", tracker.emissions)
+    tracker.add_metric("CO2 Emissions (kg)", tracker.estimate_carbon_emissions())
+
+    print("Energy Consumption: {} Joules".format(tracker.emissions))
+    print("CO2 Emissions: {} kg".format(tracker.estimate_carbon_emissions()))
 
 
 def train(model, train_loader, optimizer, criterion):
