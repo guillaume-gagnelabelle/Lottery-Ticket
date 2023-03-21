@@ -34,6 +34,7 @@ def main(args, ITE=0):
 
     # Carbon tracker initialization
     tracker = EmissionsTracker(project_name="Lottery-Ticket")
+    tracker.start()
     reinit = True if args.prune_type=="reinit" else False
 
     train_loader, test_loader = data_utils.getData(args)
