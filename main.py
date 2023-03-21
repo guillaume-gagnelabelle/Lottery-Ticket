@@ -22,7 +22,7 @@ writer = SummaryWriter()
 
 sns.set_style('whitegrid')
 
-wandb.login()
+wandb.login(key="6650aaf8018bf14396b47b6869c885d2156d86c7")
 
 
 def main(args, ITE=0):
