@@ -98,7 +98,8 @@ def main(args, ITE=0):
                     torch.save(model,f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/{_ite}_model_{args.prune_type}.pth.tar")
 
             # ----------------------------------- CORE --------- TRAINING ---------------------------------------------
-            train_loss, train_acc = train(model, train_loader, optimizer, criterion)
+            if args.train_type == "lt": train_loss, train_acc = train_lt(model, train_loader, optimizer, criterion)
+            elif args.train_type == "regular": train_loss, train_acc = train_reg(model, train_loader, optimizer, criterion)
             all_loss[iter_] = test_loss
             all_accuracy[iter_] = test_accuracy
             
@@ -149,7 +150,7 @@ def main(args, ITE=0):
     print("CO2 Emissions: {} kg".format(tracker.estimate_carbon_emissions()))
 
 
-def train(model, train_loader, optimizer, criterion):
+def train_lt(model, train_loader, optimizer, criterion):
     EPS = 1e-6
     model.train()
     train_loss = 0
@@ -177,6 +178,26 @@ def train(model, train_loader, optimizer, criterion):
 
     return train_loss, train_accuracy
 
+def train_reg(model, train_loader, optimizer, criterion):
+    model.train()
+    train_loss = 0
+    correct = 0
+    for batch_idx, (imgs, targets) in enumerate(train_loader):
+        optimizer.zero_grad()
+        imgs, targets = imgs.to(args.device), targets.to(args.device)
+        output = model(imgs)
+        loss = criterion(output, targets)
+        pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
+        correct += pred.eq(targets.data.view_as(pred)).sum().item()
+        loss.backward()
+
+        optimizer.step()
+
+    train_loss /= len(train_loader.dataset)
+    train_accuracy = 100. * correct / len(train_loader.dataset)
+
+    return train_loss, train_accuracy
+
 
 def test(model, test_loader, criterion):
     model.eval()
@@ -191,6 +212,8 @@ def test(model, test_loader, criterion):
             correct += pred.eq(target.data.view_as(pred)).sum().item()
         test_loss /= len(test_loader.dataset)
         accuracy = 100. * correct / len(test_loader.dataset)
+
+    model.train()
     return test_loss, accuracy
 
 
@@ -210,6 +233,7 @@ if __name__=="__main__":
     parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5 | alexnet | vgg16 | resnet18 | densenet121")
     parser.add_argument("--prune_percent", default=90, type=int, help="Pruning percent")
     parser.add_argument("--prune_iterations", default=2, type=int, help="Pruning iterations count")
+    parser.add_argument("--training_type", default="lt", type=str, help="lt | regular")
     
     args = parser.parse_args()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
