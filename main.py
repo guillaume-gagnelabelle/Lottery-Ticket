@@ -168,7 +168,7 @@ def main(args, ITE=0):
         "train_accuracy": args.logs["train_accuracy"],
         "initial_state_dict": initial_state_dict,
         "final_state_dict": final_state_dict,
-    })
+    }, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.seed}.pt")
 
     # Carbon Emissions
     # tracker.add_metric("Energy Consumption (Joules)", tracker.emissions)
@@ -254,7 +254,7 @@ if __name__=="__main__":
     parser.add_argument("--lr",default= 1.2e-3, type=float, help="Learning rate")
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--start_epoch", default=0, type=int)
-    parser.add_argument("--end_epoch", default=100, type=int)
+    parser.add_argument("--end_epoch", default=10, type=int)
     parser.add_argument("--print_freq", default=1, type=int)
     parser.add_argument("--valid_freq", default=1, type=int)
     parser.add_argument("--resume", action="store_true")
