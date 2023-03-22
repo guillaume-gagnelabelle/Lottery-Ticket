@@ -10,7 +10,9 @@ from tensorboardX import SummaryWriter
 import seaborn as sns
 import pickle
 from codecarbon import EmissionsTracker
+from collections import defaultdict, OrderedDict
 import wandb
+import logging
 
 # Custom Libraries
 import utils
@@ -27,6 +29,7 @@ wandb.login(key="6650aaf8018bf14396b47b6869c885d2156d86c7")
 
 def main(args, ITE=0):
     args.seed = ITE
+    args.time = 0  # in unit of the number of training images seen
     utils.set_seed(args)
 
     # Wandb initialization
@@ -39,7 +42,8 @@ def main(args, ITE=0):
     tracker = EmissionsTracker(project_name="Lottery-Ticket",
                                measure_power_secs=1,
                                tracking_mode="process",
-                               log_level="error")
+                               save_to_logger=True
+                               )
     tracker.start()
     reinit = True if args.prune_type=="reinit" else False
 
@@ -89,6 +93,7 @@ def main(args, ITE=0):
         # Print the table of Nonzeros in each layer
         comp1 = utils.print_nonzeros(model)
         comp[_ite] = comp1
+        args.logs["non_zeros_weights"][args.time] = comp1
         pbar = tqdm(range(args.end_epoch))
 
         for iter_ in pbar:
@@ -96,44 +101,46 @@ def main(args, ITE=0):
             # Frequency for Testing
             if iter_ % args.valid_freq == 0:
                 test_loss, test_accuracy = test(model, test_loader, criterion)
+                args.logs["test_loss"][args.time] = test_loss
+                args.logs["test_accuracy"][args.time] = test_accuracy
 
                 # Save Weights
-                if test_accuracy > best_accuracy:
-                    best_accuracy = test_accuracy
-                    utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
-                    torch.save(model,f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/{_ite}_model_{args.prune_type}.pth.tar")
+                # if test_accuracy > best_accuracy:
+                #     best_accuracy = test_accuracy
+                #     utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
+                #     torch.save(model,f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/{_ite}_model_{args.prune_type}.pth.tar")
 
             # ----------------------------------- CORE --------- TRAINING ---------------------------------------------
-            if args.train_type == "lt": train_loss, train_acc = train_lt(model, train_loader, optimizer, criterion)
-            elif args.train_type == "regular": train_loss, train_acc = train_reg(model, train_loader, optimizer, criterion)
-            all_loss[iter_] = test_loss
-            all_accuracy[iter_] = test_accuracy
-            
+            if args.train_type == "lt": train_loss, train_accuracy = train_lt(model, train_loader, optimizer, criterion)
+            elif args.train_type == "regular": train_loss, train_accuracy = train_reg(model, train_loader, optimizer, criterion)
+            args.logs["train_loss"][args.time] = train_loss
+            args.logs["train_accuracy"][args.time] = train_accuracy
+
             # Frequency for Printing Accuracy and Loss
             if iter_ % args.print_freq == 0:
                 pbar.set_description(
                     f'Train Epoch: {iter_}/{args.end_epoch} Loss: {test_loss:.6f} Accuracy: {test_accuracy:.2f}% Best Accuracy: {best_accuracy:.2f}%')
 
         writer.add_scalar('Accuracy/test', best_accuracy, comp1)
-        bestacc[_ite]=best_accuracy
+        # bestacc[_ite]=best_accuracy
 
         # Plotting Loss (Training), Accuracy (Testing), Iteration Curve
         #NOTE Loss is computed for every iteration while Accuracy is computed only for every {args.valid_freq} iterations. Therefore Accuracy saved is constant during the uncomputed iterations.
-        plots_utils.plot(args, all_loss, comp1, "Test Loss")
-        plots_utils.plot(args, all_accuracy, comp1, "Test Accuracy")
+        # plots_utils.plot(args, all_loss, comp1, "Test Loss")
+        # plots_utils.plot(args, all_accuracy, comp1, "Test Accuracy")
 
         # Dump Plot values
-        utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
-        all_loss.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_all_loss_{comp1}.dat")
-        all_accuracy.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_all_accuracy_{comp1}.dat")
+        # utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
+        # all_loss.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_all_loss_{comp1}.dat")
+        # all_accuracy.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_all_accuracy_{comp1}.dat")
         
         # Log metrics from your script to W&B
-        wandb.log({"acc": all_accuracy, "loss": all_loss})
+        # wandb.log({"acc": all_accuracy, "loss": all_loss})
 
         # Dumping mask
-        utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
-        with open(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_mask_{comp1}.pkl", 'wb') as fp:
-            pickle.dump(mask, fp)
+        # utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
+        # with open(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_mask_{comp1}.pkl", 'wb') as fp:
+        #     pickle.dump(mask, fp)
         
         # Reseting performance variables
         best_accuracy = 0
@@ -147,22 +154,31 @@ def main(args, ITE=0):
 
 
     # Dumping Values for Plotting
-    utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
-    comp.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_compression.dat")
-    bestacc.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_bestaccuracy.dat")
+    # utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
+    # comp.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_compression.dat")
+    # bestacc.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_bestaccuracy.dat")
 
-    plots_utils.final_plot(args, bestacc, comp)
+    # plots_utils.final_plot(args, bestacc, comp)
+
+    torch.save({
+        "test_loss": args.logs["test_loss"],
+        "train_loss": args.logs["train_loss"],
+        "test_accuracy": args.logs["test_accuracy"],
+        "train_accuracy": args.logs["train_accuracy"],
+        "initial_state_dict": initial_state_dict,
+        "final_state_dict": final_state_dict,
+    })
 
     # Carbon Emissions
+    # tracker.add_metric("Energy Consumption (Joules)", tracker.emissions)
+    # tracker.add_metric("CO2 Emissions (kg)", tracker.estimate_carbon_emissions())
     tracker.stop()
-    tracker.add_metric("Energy Consumption (Joules)", tracker.emissions)
-    tracker.add_metric("CO2 Emissions (kg)", tracker.estimate_carbon_emissions())
 
     print("Energy Consumption: {} Joules".format(tracker.emissions))
     print("CO2 Emissions: {} kg".format(tracker.estimate_carbon_emissions()))
 
 
-def train_lt(model, train_loader, optimizer, criterion):
+def train_lt(model, train_loader, optimizer, criterion, args):
     EPS = 1e-6
     model.train()
     train_loss = 0
@@ -174,6 +190,7 @@ def train_lt(model, train_loader, optimizer, criterion):
         loss = criterion(output, targets)
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(targets.data.view_as(pred)).sum().item()
+        args.time += len(targets)
         loss.backward()
 
         # Freezing Pruned weights by making their gradients Zero
@@ -201,6 +218,7 @@ def train_reg(model, train_loader, optimizer, criterion):
         loss = criterion(output, targets)
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(targets.data.view_as(pred)).sum().item()
+        args.time += len(targets)
         loss.backward()
 
         optimizer.step()
@@ -248,6 +266,7 @@ if __name__=="__main__":
     parser.add_argument("--train_type", default="lt", type=str, help="lt | regular")
     
     args = parser.parse_args()
+    args.logs = defaultdict(OrderedDict)
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if(args.train_type == "regular"): args.prune_iterations = 1  # No pruning with regular training
     print(args.device)
