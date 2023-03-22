@@ -104,6 +104,7 @@ def main(args, ITE=0):
                 test_loss, test_accuracy = test(model, test_loader, criterion)
                 args.logs["test_loss"][args.time] = test_loss
                 args.logs["test_accuracy"][args.time] = test_accuracy
+                args.logs["co2"][args.time] = tracker.flush()
 
                 # Save Weights
                 # if test_accuracy > best_accuracy:
@@ -164,6 +165,7 @@ def main(args, ITE=0):
 
     torch.save({
         "non_zeros_weights": args.logs["non_zeros_weights"],
+        "co2": args.logs["co2"],
         "test_loss": args.logs["test_loss"],
         "train_loss": args.logs["train_loss"],
         "test_accuracy": args.logs["test_accuracy"],
