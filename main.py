@@ -233,11 +233,11 @@ if __name__=="__main__":
     parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5 | alexnet | vgg16 | resnet18 | densenet121")
     parser.add_argument("--prune_percent", default=90, type=int, help="Pruning percent")
     parser.add_argument("--prune_iterations", default=2, type=int, help="Pruning iterations count")
-    parser.add_argument("--training_type", default="lt", type=str, help="lt | regular")
+    parser.add_argument("--train_type", default="lt", type=str, help="lt | regular")
     
     args = parser.parse_args()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    if(args.training_type == "regular"): args.prune_iterations = 1  # No pruning with regular training
+    if(args.train_type == "regular"): args.prune_iterations = 1  # No pruning with regular training
     print(args.device)
 
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
