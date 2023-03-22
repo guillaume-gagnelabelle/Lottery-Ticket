@@ -60,11 +60,11 @@ def main(args, ITE=0):
     ITERATION = args.prune_iterations
     comp = np.zeros(ITERATION,float)
     bestacc = np.zeros(ITERATION,float)
-    all_loss = np.zeros(args.end_iter,float)
-    all_accuracy = np.zeros(args.end_iter,float)
+    all_loss = np.zeros(args.end_epoch,float)
+    all_accuracy = np.zeros(args.end_epoch,float)
 
 
-    for _ite in range(args.start_iter, ITERATION):
+    for _ite in range(args.start_epoch, ITERATION):
         if not _ite == 0:
             archs_utils.prune_by_percentile(model, mask, args.prune_percent, resample=resample, reinit=reinit)
             if reinit:
@@ -83,7 +83,7 @@ def main(args, ITE=0):
         # Print the table of Nonzeros in each layer
         comp1 = utils.print_nonzeros(model)
         comp[_ite] = comp1
-        pbar = tqdm(range(args.end_iter))
+        pbar = tqdm(range(args.end_epoch))
 
         for iter_ in pbar:
 
@@ -106,7 +106,7 @@ def main(args, ITE=0):
             # Frequency for Printing Accuracy and Loss
             if iter_ % args.print_freq == 0:
                 pbar.set_description(
-                    f'Train Epoch: {iter_}/{args.end_iter} Loss: {test_loss:.6f} Accuracy: {test_accuracy:.2f}% Best Accuracy: {best_accuracy:.2f}%')
+                    f'Train Epoch: {iter_}/{args.end_epoch} Loss: {test_loss:.6f} Accuracy: {test_accuracy:.2f}% Best Accuracy: {best_accuracy:.2f}%')
 
         writer.add_scalar('Accuracy/test', best_accuracy, comp1)
         bestacc[_ite]=best_accuracy
@@ -131,8 +131,8 @@ def main(args, ITE=0):
         
         # Reseting performance variables
         best_accuracy = 0
-        all_loss = np.zeros(args.end_iter, float)
-        all_accuracy = np.zeros(args.end_iter, float)
+        all_loss = np.zeros(args.end_epoch, float)
+        all_accuracy = np.zeros(args.end_epoch, float)
 
     # Dumping Values for Plotting
     utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
@@ -222,8 +222,8 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--lr",default= 1.2e-3, type=float, help="Learning rate")
     parser.add_argument("--batch_size", default=32, type=int)
-    parser.add_argument("--start_iter", default=0, type=int)
-    parser.add_argument("--end_iter", default=100, type=int)
+    parser.add_argument("--start_epoch", default=0, type=int)
+    parser.add_argument("--end_epoch", default=100, type=int)
     parser.add_argument("--print_freq", default=1, type=int)
     parser.add_argument("--valid_freq", default=1, type=int)
     parser.add_argument("--resume", action="store_true")
