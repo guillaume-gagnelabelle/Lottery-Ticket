@@ -163,6 +163,7 @@ def main(args, ITE=0):
     # plots_utils.final_plot(args, bestacc, comp)
 
     torch.save({
+        "non_zeros_weights": args.logs["non_zeros_weights"],
         "test_loss": args.logs["test_loss"],
         "train_loss": args.logs["train_loss"],
         "test_accuracy": args.logs["test_accuracy"],
