@@ -42,6 +42,7 @@ def main(args, ITE=0):
     tracker = EmissionsTracker(project_name="Lottery-Ticket",
                                measure_power_secs=1,
                                tracking_mode="process",
+                               log_level="critical",
                                save_to_logger=True
                                )
     tracker.start()
@@ -111,8 +112,8 @@ def main(args, ITE=0):
                 #     torch.save(model,f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/{_ite}_model_{args.prune_type}.pth.tar")
 
             # ----------------------------------- CORE --------- TRAINING ---------------------------------------------
-            if args.train_type == "lt": train_loss, train_accuracy = train_lt(model, train_loader, optimizer, criterion)
-            elif args.train_type == "regular": train_loss, train_accuracy = train_reg(model, train_loader, optimizer, criterion)
+            if args.train_type == "lt": train_loss, train_accuracy = train_lt(model, train_loader, optimizer, criterion, args)
+            elif args.train_type == "regular": train_loss, train_accuracy = train_reg(model, train_loader, optimizer, criterion, args)
             args.logs["train_loss"][args.time] = train_loss
             args.logs["train_accuracy"][args.time] = train_accuracy
 
@@ -207,7 +208,7 @@ def train_lt(model, train_loader, optimizer, criterion, args):
 
     return train_loss, train_accuracy
 
-def train_reg(model, train_loader, optimizer, criterion):
+def train_reg(model, train_loader, optimizer, criterion, args):
     model.train()
     train_loss = 0
     correct = 0
