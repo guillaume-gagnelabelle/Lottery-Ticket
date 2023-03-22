@@ -26,6 +26,8 @@ wandb.login(key="6650aaf8018bf14396b47b6869c885d2156d86c7")
 
 
 def main(args, ITE=0):
+    utils.set_seed(ITE)
+
     # Wandb initialization
     wandb.init(
         project="Lottery-Ticket", 
@@ -249,5 +251,4 @@ if __name__=="__main__":
 
     # Looping Entire process
     #for i in range(0, 5):
-    utils.set_seed(1)
     main(args, ITE=1)
