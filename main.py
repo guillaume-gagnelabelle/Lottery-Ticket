@@ -26,7 +26,8 @@ wandb.login(key="6650aaf8018bf14396b47b6869c885d2156d86c7")
 
 
 def main(args, ITE=0):
-    utils.set_seed(ITE)
+    args.seed = ITE
+    utils.set_seed(args)
 
     # Wandb initialization
     wandb.init(
@@ -47,7 +48,7 @@ def main(args, ITE=0):
     # Copying and Saving Initial State
     initial_state_dict = copy.deepcopy(model.state_dict())
     utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
-    torch.save(model, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/initial_state_dict_{args.prune_type}.pth.tar")
+    torch.save(initial_state_dict, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/initial_state_dict_{args.seed}.pt")
 
     mask = archs_utils.make_mask(model)
     optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-4)
@@ -135,6 +136,12 @@ def main(args, ITE=0):
         best_accuracy = 0
         all_loss = np.zeros(args.end_epoch, float)
         all_accuracy = np.zeros(args.end_epoch, float)
+
+    # Copying and Saving Final State
+    final_state_dict = copy.deepcopy(model.state_dict())
+    utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
+    torch.save(final_state_dict, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/final_state_dict_{args.seed}.pt")
+
 
     # Dumping Values for Plotting
     utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
