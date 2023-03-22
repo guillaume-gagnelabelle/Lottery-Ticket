@@ -249,4 +249,5 @@ if __name__=="__main__":
 
     # Looping Entire process
     #for i in range(0, 5):
+    utils.set_seed(1)
     main(args, ITE=1)
