@@ -31,11 +31,11 @@ def main(args, ITE=0):
     # Wandb initialization
     wandb.init(
         project="Lottery-Ticket", 
-        entity="ift3710-h23", 
+        entity="ift3710-h23",
         config=args)
 
     # Carbon tracker initialization
-    tracker = EmissionsTracker(project_name="Lottery-Ticket")
+    tracker = EmissionsTracker(project_name="Lottery-Ticket", measure_power_secs=1)
     tracker.start()
     reinit = True if args.prune_type=="reinit" else False
 
