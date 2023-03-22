@@ -237,6 +237,7 @@ if __name__=="__main__":
     
     args = parser.parse_args()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if(args.training_type == "regular"): args.prune_iterations = 1  # No pruning with regular training
     print(args.device)
 
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"   
