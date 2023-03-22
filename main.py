@@ -168,7 +168,7 @@ def main(args, ITE=0):
         "train_accuracy": args.logs["train_accuracy"],
         "initial_state_dict": initial_state_dict,
         "final_state_dict": final_state_dict,
-    }, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.seed}.pt")
+    }, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.train_type}_{args.seed}.pt")
 
     # Carbon Emissions
     # tracker.add_metric("Energy Consumption (Joules)", tracker.emissions)
