@@ -36,7 +36,10 @@ def main(args, ITE=0):
         config=args)
 
     # Carbon tracker initialization
-    tracker = EmissionsTracker(project_name="Lottery-Ticket", measure_power_secs=1)
+    tracker = EmissionsTracker(project_name="Lottery-Ticket",
+                               measure_power_secs=1,
+                               tracking_mode="process",
+                               log_level="error")
     tracker.start()
     reinit = True if args.prune_type=="reinit" else False
 
