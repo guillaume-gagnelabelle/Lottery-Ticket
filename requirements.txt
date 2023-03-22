@@ -15,5 +15,5 @@ tensorboardX>=1.8
 torch>=1.2.0
 torchvision>=0.4.0
 tqdm>=4.36.1
-codecarbon>=0.1.0
-wandb>=0.8.32
+codecarbon>=2.1.4
+wandb>=0.14.0
