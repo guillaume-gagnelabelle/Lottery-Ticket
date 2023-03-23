@@ -123,8 +123,8 @@ def main(args, ITE=0):
                 train_loss, train_accuracy = train_lt(model, train_loader, optimizer, criterion, args)
             elif args.train_type == "regular":
                 train_loss, train_accuracy = train_reg(model, train_loader, optimizer, criterion, args)
-            args.logs["train_loss"][args.time] = train_loss
-            args.logs["train_accuracy"][args.time] = train_accuracy
+            args.logs["train_loss"][args.nb_images_seen] = train_loss
+            args.logs["train_accuracy"][args.nb_images_seen] = train_accuracy
 
             # Frequency for Printing Accuracy and Loss
             if iter_ % args.print_freq == 0:
@@ -297,5 +297,5 @@ if __name__ == "__main__":
     resample = False
 
     # Looping Entire process
-    for i in range(0, 1):
+    for i in range(0, 2):
         main(args, ITE=i)
