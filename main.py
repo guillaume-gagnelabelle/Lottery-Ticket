@@ -13,6 +13,7 @@ from codecarbon import EmissionsTracker
 from collections import defaultdict, OrderedDict
 import wandb
 import logging
+import time
 
 # Custom Libraries
 import utils
@@ -31,6 +32,9 @@ def main(args, ITE=0):
     args.seed = ITE
     args.time = 0  # in unit of the number of training images seen
     utils.set_seed(args)
+
+    print(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}.pt")
+
 
     # Wandb initialization
     wandb.init(
@@ -148,8 +152,8 @@ def main(args, ITE=0):
 
         # Reseting performance variables
         best_accuracy = 0
-        all_loss = np.zeros(args.end_epoch, float)
-        all_accuracy = np.zeros(args.end_epoch, float)
+        # all_loss = np.zeros(args.end_epoch, float)
+        # all_accuracy = np.zeros(args.end_epoch, float)
 
     # Copying and Saving Final State
     final_state_dict = copy.deepcopy(model.state_dict())
@@ -290,5 +294,5 @@ if __name__ == "__main__":
     resample = False
 
     # Looping Entire process
-    for i in range(1, 2):
+    for i in range(0, 1):
         main(args, ITE=i)

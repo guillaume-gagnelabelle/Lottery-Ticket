@@ -4,3 +4,4 @@
 /data/MNIST
 /data/cifar-10-batches-py
 /plots/lt
+/scratch.py
