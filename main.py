@@ -286,7 +286,7 @@ if __name__ == "__main__":
     args.logs = defaultdict(OrderedDict)
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if args.train_type == "regular":
-        args.prune_iterations = 1  # single iteration (no pruning)
+        args.prune_percent = 0     # single iteration (no pruning)
         args.prune_iterations = 1  # No pruning with regular training
     print(args.device)
 
@@ -297,5 +297,5 @@ if __name__ == "__main__":
     resample = False
 
     # Looping Entire process
-    for i in range(0, 2):
+    for i in range(0, 3):
         main(args, ITE=i)
