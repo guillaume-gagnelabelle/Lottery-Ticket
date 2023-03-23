@@ -30,7 +30,7 @@ wandb.login(key="6650aaf8018bf14396b47b6869c885d2156d86c7")
 
 def main(args, ITE=0):
     args.seed = ITE
-    args.time = 0  # in unit of the number of training images seen
+    args.nb_images_seen = 0  # in unit of the number of training images seen
     utils.set_seed(args)
 
     print(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}.pt")
@@ -50,6 +50,7 @@ def main(args, ITE=0):
                                save_to_logger=True
                                )
     tracker.start()
+    start = time.time()
     reinit = True if args.prune_type == "reinit" else False
 
     train_loader, test_loader = data_utils.getData(args)
@@ -97,7 +98,7 @@ def main(args, ITE=0):
         # Print the table of Nonzeros in each layer
         comp1 = utils.print_nonzeros(model)
         comp[_ite] = comp1
-        args.logs["non_zeros_weights"][args.time] = comp1
+        args.logs["non_zeros_weights"][args.nb_images_seen] = comp1
         pbar = tqdm(range(args.end_epoch))
 
         for iter_ in pbar:
@@ -105,9 +106,10 @@ def main(args, ITE=0):
             # Frequency for Testing
             if iter_ % args.valid_freq == 0:
                 test_loss, test_accuracy = test(model, test_loader, criterion)
-                args.logs["test_loss"][args.time] = test_loss
-                args.logs["test_accuracy"][args.time] = test_accuracy
-                args.logs["co2"][args.time] = tracker.flush()
+                args.logs["test_loss"][args.nb_images_seen] = test_loss
+                args.logs["test_accuracy"][args.nb_images_seen] = test_accuracy
+                args.logs["co2"][args.nb_images_seen] = tracker.flush()
+                args.logs["time"][args.nb_images_seen] = time.time() - start
 
                 # Save Weights
                 if test_accuracy > best_accuracy:
@@ -169,6 +171,7 @@ def main(args, ITE=0):
 
     utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
     torch.save({
+        "time": args.logs["time"],
         "non_zeros_weights": args.logs["non_zeros_weights"],
         "co2": args.logs["co2"],
         "test_loss": args.logs["test_loss"],
@@ -202,7 +205,7 @@ def train_lt(model, train_loader, optimizer, criterion, args):
         loss = criterion(output, targets)
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(targets.data.view_as(pred)).sum().item()
-        args.time += len(targets)
+        args.nb_images_seen += len(targets)
         loss.backward()
 
         # Freezing Pruned weights by making their gradients Zero
@@ -231,7 +234,7 @@ def train_reg(model, train_loader, optimizer, criterion, args):
         loss = criterion(output, targets)
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(targets.data.view_as(pred)).sum().item()
-        args.time += len(targets)
+        args.nb_images_seen += len(targets)
         loss.backward()
 
         optimizer.step()
