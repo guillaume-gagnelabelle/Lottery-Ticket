@@ -55,9 +55,8 @@ def main(args, ITE=0):
 
     # Copying and Saving Initial State
     initial_state_dict = copy.deepcopy(model.state_dict())
-    utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
-    torch.save(initial_state_dict,
-               f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/initial_state_dict_{args.seed}.pt")
+    # utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
+    # torch.save(initial_state_dict, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/initial_state_dict_{args.seed}.pt")
 
     mask = archs_utils.make_mask(model)
     optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-4)
@@ -71,9 +70,9 @@ def main(args, ITE=0):
     best_accuracy = 0
     ITERATION = args.prune_iterations
     comp = np.zeros(ITERATION, float)
-    bestacc = np.zeros(ITERATION, float)
-    all_loss = np.zeros(args.end_epoch, float)
-    all_accuracy = np.zeros(args.end_epoch, float)
+    # bestacc = np.zeros(ITERATION, float)
+    # all_loss = np.zeros(args.end_epoch, float)
+    # all_accuracy = np.zeros(args.end_epoch, float)
 
     for _ite in range(args.start_epoch, ITERATION):
         if not _ite == 0:
@@ -107,8 +106,9 @@ def main(args, ITE=0):
                 args.logs["co2"][args.time] = tracker.flush()
 
                 # Save Weights
-                # if test_accuracy > best_accuracy:
-                #     best_accuracy = test_accuracy
+                if test_accuracy > best_accuracy:
+                    best_accuracy = test_accuracy
+                    best_state_dict = copy.deepcopy(model.state_dict())
                 #     utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
                 #     torch.save(model,f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/{_ite}_model_{args.prune_type}.pth.tar")
 
@@ -153,8 +153,8 @@ def main(args, ITE=0):
 
     # Copying and Saving Final State
     final_state_dict = copy.deepcopy(model.state_dict())
-    utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
-    torch.save(final_state_dict, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/final_state_dict_{args.seed}.pt")
+    # utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
+    # torch.save(final_state_dict, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/final_state_dict_{args.seed}.pt")
 
     # Dumping Values for Plotting
     # utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
@@ -163,6 +163,7 @@ def main(args, ITE=0):
 
     # plots_utils.final_plot(args, bestacc, comp)
 
+    utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
     torch.save({
         "non_zeros_weights": args.logs["non_zeros_weights"],
         "co2": args.logs["co2"],
@@ -171,6 +172,7 @@ def main(args, ITE=0):
         "test_accuracy": args.logs["test_accuracy"],
         "train_accuracy": args.logs["train_accuracy"],
         "initial_state_dict": initial_state_dict,
+        "best_state_dict": best_state_dict,
         "final_state_dict": final_state_dict,
     },
         f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}.pt")
@@ -180,8 +182,8 @@ def main(args, ITE=0):
     # tracker.add_metric("CO2 Emissions (kg)", tracker.estimate_carbon_emissions())
     tracker.stop()
 
-    print("Energy Consumption: {} Joules".format(tracker.emissions))
-    print("CO2 Emissions: {} kg".format(tracker.estimate_carbon_emissions()))
+    # print("Energy Consumption: {} Joules".format(tracker.emissions))
+    # print("CO2 Emissions: {} kg".format(tracker.estimate_carbon_emissions()))
 
 
 def train_lt(model, train_loader, optimizer, criterion, args):
@@ -288,5 +290,5 @@ if __name__ == "__main__":
     resample = False
 
     # Looping Entire process
-    # for i in range(0, 5):
-    main(args, ITE=1)
+    for i in range(1, 2):
+        main(args, ITE=i)
