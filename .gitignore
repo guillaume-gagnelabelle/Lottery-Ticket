@@ -1,6 +1,5 @@
 /dumps
 /runs
-/saves
 /data/MNIST
 /data/cifar-10-batches-py
 /plots/lt
