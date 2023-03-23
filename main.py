@@ -119,10 +119,7 @@ def main(args, ITE=0):
                 #     torch.save(model,f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/{_ite}_model_{args.prune_type}.pth.tar")
 
             # ----------------------------------- CORE --------- TRAINING ---------------------------------------------
-            if args.train_type == "lt":
-                train_loss, train_accuracy = train_lt(model, train_loader, optimizer, criterion, args)
-            elif args.train_type == "regular":
-                train_loss, train_accuracy = train_reg(model, train_loader, optimizer, criterion, args)
+            train_loss, train_accuracy = train(model, train_loader, optimizer, criterion, args)
             args.logs["train_loss"][args.nb_images_seen] = train_loss
             args.logs["train_accuracy"][args.nb_images_seen] = train_accuracy
 
@@ -193,7 +190,7 @@ def main(args, ITE=0):
     # print("CO2 Emissions: {} kg".format(tracker.estimate_carbon_emissions()))
 
 
-def train_lt(model, train_loader, optimizer, criterion, args):
+def train(model, train_loader, optimizer, criterion, args):
     EPS = 1e-6
     model.train()
     train_loss = 0
@@ -208,35 +205,14 @@ def train_lt(model, train_loader, optimizer, criterion, args):
         args.nb_images_seen += len(targets)
         loss.backward()
 
-        # Freezing Pruned weights by making their gradients Zero
-        for name, p in model.named_parameters():
-            if 'weight' in name:
-                tensor = p.data.cpu().numpy()
-                grad_tensor = p.grad.data.cpu().numpy()
-                grad_tensor = np.where(tensor < EPS, 0, grad_tensor)
-                p.grad.data = torch.from_numpy(grad_tensor).to(args.device)
-        optimizer.step()
-
-    train_loss /= len(train_loader.dataset)
-    train_accuracy = 100. * correct / len(train_loader.dataset)
-
-    return train_loss, train_accuracy
-
-
-def train_reg(model, train_loader, optimizer, criterion, args):
-    model.train()
-    train_loss = 0
-    correct = 0
-    for batch_idx, (imgs, targets) in enumerate(train_loader):
-        optimizer.zero_grad()
-        imgs, targets = imgs.to(args.device), targets.to(args.device)
-        output = model(imgs)
-        loss = criterion(output, targets)
-        pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
-        correct += pred.eq(targets.data.view_as(pred)).sum().item()
-        args.nb_images_seen += len(targets)
-        loss.backward()
-
+        if args.train_type == "lt":
+            # Freezing Pruned weights by making their gradients Zero
+            for name, p in model.named_parameters():
+                if 'weight' in name:
+                    tensor = p.data.cpu().numpy()
+                    grad_tensor = p.grad.data.cpu().numpy()
+                    grad_tensor = np.where(tensor < EPS, 0, grad_tensor)
+                    p.grad.data = torch.from_numpy(grad_tensor).to(args.device)
         optimizer.step()
 
     train_loss /= len(train_loader.dataset)
