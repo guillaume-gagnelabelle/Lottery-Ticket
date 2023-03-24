@@ -53,8 +53,7 @@ def main(args, ITE=0):
     start = time.time()
     reinit = True if args.prune_type == "reinit" else False
 
-    # TODO: ajouter un ensemble de validation "val_loader" (70-15-15)
-    train_loader, test_loader = data_utils.getData(args)
+    train_loader, val_loader, test_loader = data_utils.getData(args)
 
     model = archs_utils.getModel(args)
     model.apply(archs_utils.weight_init)
