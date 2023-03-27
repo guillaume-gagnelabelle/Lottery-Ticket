@@ -102,6 +102,7 @@ def main(args, ITE=0):
                     args.logs["co2"][args.nb_images_seen] = 0
 
                 elif args.co2_tracking_mode:
+                    test_loss, test_accuracy = 0, 0
                     args.logs["test_loss"][args.nb_images_seen] = 0
                     args.logs["test_accuracy"][args.nb_images_seen] = 0
                     args.logs["co2"][args.nb_images_seen] = tracker.flush()
