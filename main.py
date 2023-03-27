@@ -99,7 +99,11 @@ def main(args, ITE=0):
                     test_loss, test_accuracy = test(model, test_loader, criterion)
                     args.logs["test_loss"][args.nb_images_seen] = test_loss
                     args.logs["test_accuracy"][args.nb_images_seen] = test_accuracy
+                    args.logs["co2"][args.nb_images_seen] = 0
+
                 elif args.co2_tracking_mode:
+                    args.logs["test_loss"][args.nb_images_seen] = 0
+                    args.logs["test_accuracy"][args.nb_images_seen] = 0
                     args.logs["co2"][args.nb_images_seen] = tracker.flush()
                 args.logs["time"][args.nb_images_seen] = time.time() - start
 
@@ -205,14 +209,12 @@ if __name__ == "__main__":
     parser.add_argument("--valid_freq", default=1, type=int)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--prune_type", default="lt", type=str, help="lt | reinit")
-    # parser.add_argument("--gpu", default="0", type=str)
     parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10 | fashionmnist | cifar100")
-    parser.add_argument("--arch_type", default="fc1", type=str,
-                        help="fc1 | lenet5 | alexnet | vgg16 | resnet18 | densenet121")
+    parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5 | alexnet | vgg16 | resnet18 | densenet121")
     parser.add_argument("--prune_percent", default=90, type=int, help="Pruning percent")
     parser.add_argument("--prune_iterations", default=2, type=int, help="Pruning iterations count")
     parser.add_argument("--train_type", default="lt", type=str, help="lt | regular")
-    parser.add_argument("co2_tracking_mode", action="store_true")
+    parser.add_argument("--co2_tracking_mode", action="store_true")
 
     args = parser.parse_args()
     args.logs = defaultdict(OrderedDict)
