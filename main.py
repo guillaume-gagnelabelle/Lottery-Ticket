@@ -22,9 +22,6 @@ from archs import archs_utils
 from plots import plots_utils
 
 writer = SummaryWriter()
-
-sns.set_style('whitegrid')
-
 wandb.login(key="6650aaf8018bf14396b47b6869c885d2156d86c7")
 
 
@@ -33,18 +30,15 @@ def main(args, ITE=0):
     args.nb_images_seen = 0  # in unit of the number of training images seen
     utils.set_seed(args)
 
+    project =f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}.pt"
     print(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}.pt")
 
 
     # Wandb initialization
-    project = f"{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}"
-    wandb.init(
-        project=project,
-        entity="ift3710-h23",
-        config=args)
+    wandb.init(project=project, entity="ift3710-h23", config=args)
 
     # Carbon tracker initialization
-    tracker = EmissionsTracker(project_name="Lottery-Ticket",
+    tracker = EmissionsTracker(project_name=project,
                                measure_power_secs=1,
                                tracking_mode="process",
                                log_level="critical",
