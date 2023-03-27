@@ -60,8 +60,6 @@ def main(args, ITE=0):
 
     # Copying and Saving Initial State
     initial_state_dict = copy.deepcopy(model.state_dict())
-    # utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
-    # torch.save(initial_state_dict, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/initial_state_dict_{args.seed}.pt")
 
     mask = archs_utils.make_mask(model)
     optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-4)
@@ -75,9 +73,6 @@ def main(args, ITE=0):
     best_accuracy = 0
     ITERATION = args.prune_iterations
     comp = np.zeros(ITERATION, float)
-    # bestacc = np.zeros(ITERATION, float)
-    # all_loss = np.zeros(args.end_epoch, float)
-    # all_accuracy = np.zeros(args.end_epoch, float)
 
     for _ite in range(args.start_epoch, ITERATION):
         if not _ite == 0:
@@ -115,8 +110,6 @@ def main(args, ITE=0):
                 if test_accuracy > best_accuracy:
                     best_accuracy = test_accuracy
                     best_state_dict = copy.deepcopy(model.state_dict())
-                #     utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
-                #     torch.save(model,f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/{_ite}_model_{args.prune_type}.pth.tar")
 
             # ----------------------------------- CORE --------- TRAINING ---------------------------------------------
             train_loss, train_accuracy = train(model, train_loader, optimizer, criterion, args)
@@ -129,43 +122,10 @@ def main(args, ITE=0):
                     f'Train Epoch: {iter_}/{args.end_epoch} Loss: {test_loss:.6f} Accuracy: {test_accuracy:.2f}% Best Accuracy: {best_accuracy:.2f}%')
 
         writer.add_scalar('Accuracy/test', best_accuracy, comp1)
-        # bestacc[_ite]=best_accuracy
-
-        # Plotting Loss (Training), Accuracy (Testing), Iteration Curve
-        # NOTE Loss is computed for every iteration while Accuracy is computed only for every {args.valid_freq} iterations. Therefore Accuracy saved is constant during the uncomputed iterations.
-        # plots_utils.plot(args, all_loss, comp1, "Test Loss")
-        # plots_utils.plot(args, all_accuracy, comp1, "Test Accuracy")
-
-        # Dump Plot values
-        # utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
-        # all_loss.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_all_loss_{comp1}.dat")
-        # all_accuracy.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_all_accuracy_{comp1}.dat")
-
-        # Log metrics from your script to W&B
-        # wandb.log({"acc": all_accuracy, "loss": all_loss})
-
-        # Dumping mask
-        # utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
-        # with open(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_mask_{comp1}.pkl", 'wb') as fp:
-        #     pickle.dump(mask, fp)
-
-        # Reseting performance variables
         best_accuracy = 0
-        # all_loss = np.zeros(args.end_epoch, float)
-        # all_accuracy = np.zeros(args.end_epoch, float)
 
     # Copying and Saving Final State
     final_state_dict = copy.deepcopy(model.state_dict())
-    # utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
-    # torch.save(final_state_dict, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/final_state_dict_{args.seed}.pt")
-
-    # Dumping Values for Plotting
-    # utils.checkdir(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/")
-    # comp.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_compression.dat")
-    # bestacc.dump(f"{os.getcwd()}/dumps/lt/{args.arch_type}/{args.dataset}/{args.prune_type}_bestaccuracy.dat")
-
-    # plots_utils.final_plot(args, bestacc, comp)
-
     utils.checkdir(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/")
     torch.save({
         "time": args.logs["time"],
@@ -186,9 +146,6 @@ def main(args, ITE=0):
     # tracker.add_metric("CO2 Emissions (kg)", tracker.estimate_carbon_emissions())
     tracker.stop()
 
-    # print("Energy Consumption: {} Joules".format(tracker.emissions))
-    # print("CO2 Emissions: {} kg".format(tracker.estimate_carbon_emissions()))
-
 
 def train(model, train_loader, optimizer, criterion, args):
     EPS = 1e-6
@@ -200,6 +157,7 @@ def train(model, train_loader, optimizer, criterion, args):
         imgs, targets = imgs.to(args.device), targets.to(args.device)
         output = model(imgs)
         loss = criterion(output, targets)
+        train_loss += loss.item()
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(targets.data.view_as(pred)).sum().item()
         args.nb_images_seen += len(targets)
