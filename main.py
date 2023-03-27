@@ -30,7 +30,7 @@ def main(args, ITE=0):
     args.nb_images_seen = 0  # in unit of the number of training images seen
     utils.set_seed(args)
 
-    project =f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}.pt"
+    project = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}.pt"
     print(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}.pt")
 
 
