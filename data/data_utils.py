@@ -4,7 +4,7 @@ import torchvision.datasets as datasets
 import numpy as np
 
 
-def getData(args):
+def getData(args, train_percent=0.7, val_percent=0.15):
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
     if args.dataset == "mnist":
         traindataset = datasets.MNIST('./data', train=True, download=True, transform=transform)
@@ -32,8 +32,8 @@ def getData(args):
         
     # Determine the number of samples for each dataset split
     total_size = len(dataset_total)
-    train_size = int(0.7 * total_size)
-    val_size = int(0.15 * total_size)
+    train_size = int(train_percent * total_size)
+    val_size = int(val_percent * total_size)
     test_size = total_size - train_size - val_size
 
     # split the data into train, validation and test
