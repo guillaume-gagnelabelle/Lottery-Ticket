@@ -109,7 +109,7 @@ def main(args, ITE=0):
                 args.logs["time"][args.nb_images_seen] = time.time() - start
 
                 # Save Weights
-                if test_accuracy > best_accuracy:
+                if test_accuracy >= best_accuracy:
                     best_accuracy = test_accuracy
                     best_state_dict = copy.deepcopy(model.state_dict())
 
