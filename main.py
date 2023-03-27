@@ -95,10 +95,12 @@ def main(args, ITE=0):
 
             # Frequency for Testing
             if iter_ % args.valid_freq == 0:
-                test_loss, test_accuracy = test(model, test_loader, criterion)
-                args.logs["test_loss"][args.nb_images_seen] = test_loss
-                args.logs["test_accuracy"][args.nb_images_seen] = test_accuracy
-                args.logs["co2"][args.nb_images_seen] = tracker.flush()
+                if not args.co2_tracking_mode:
+                    test_loss, test_accuracy = test(model, test_loader, criterion)
+                    args.logs["test_loss"][args.nb_images_seen] = test_loss
+                    args.logs["test_accuracy"][args.nb_images_seen] = test_accuracy
+                elif args.co2_tracking_mode:
+                    args.logs["co2"][args.nb_images_seen] = tracker.flush()
                 args.logs["time"][args.nb_images_seen] = time.time() - start
 
                 # Save Weights
@@ -210,6 +212,7 @@ if __name__ == "__main__":
     parser.add_argument("--prune_percent", default=90, type=int, help="Pruning percent")
     parser.add_argument("--prune_iterations", default=2, type=int, help="Pruning iterations count")
     parser.add_argument("--train_type", default="lt", type=str, help="lt | regular")
+    parser.add_argument("co2_tracking_mode", action="store_true")
 
     args = parser.parse_args()
     args.logs = defaultdict(OrderedDict)
