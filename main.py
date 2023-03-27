@@ -37,8 +37,9 @@ def main(args, ITE=0):
 
 
     # Wandb initialization
+    project = f"{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}"
     wandb.init(
-        project="Lottery-Ticket",
+        project=project,
         entity="ift3710-h23",
         config=args)
 
