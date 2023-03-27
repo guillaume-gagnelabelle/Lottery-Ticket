@@ -8,6 +8,8 @@ import numpy as np
 
 logs = ["logs_lt_pp68x3", "logs_lt_pp90x2", "logs_regular_pp90x1"]
 metrics = ["non_zeros_weights", "test_loss", "test_accuracy", "train_loss", "train_accuracy"]
+units = [" %", "", " %", "", " %"]
+legends = ["lt_pp68x3", "lt_pp90x2", "regular_pp90x1"]
 seeds = [0, 1, 2]
 
 nb_seen_images = []
@@ -44,27 +46,29 @@ for log in logs:
 # Plots of images seen
 for idx, metric in enumerate(metrics):
     plt.figure()
-    plt.ylabel(metric)
+    plt.ylabel(metric + units[idx])
     plt.xlabel("nb_seen_images")
     for i in range(0, len(logs)):
-        plt.plot(nb_seen_images[idx + i * len(metrics)], ys_mean[idx + i * len(metrics)])
+        plt.plot(nb_seen_images[idx + i * len(metrics)], ys_mean[idx + i * len(metrics)], label=legends[i])
         plt.fill_between(nb_seen_images[idx + i * len(metrics)], ys_mean[idx + i * len(metrics)] - ys_std[idx + i * len(metrics)],
                          ys_mean[idx + i * len(metrics)] + ys_std[idx + i * len(metrics)],
                          alpha=0.7)
     plt.grid()
+    plt.legend()
     plt.show()
 
-# Plos of time
+# Plots of time
 for idx, metric in enumerate(metrics):
     plt.figure()
-    plt.ylabel(metric)
-    plt.xlabel("time")
+    plt.ylabel(metric + units[idx])
+    plt.xlabel("time [s]")
     for i in range(0, len(logs)):
-        plt.plot(times[idx + i * len(metrics)], ys_mean[idx + i * len(metrics)])
+        plt.plot(times[idx + i * len(metrics)], ys_mean[idx + i * len(metrics)], label=legends[i])
         plt.fill_between(times[idx + i * len(metrics)], ys_mean[idx + i * len(metrics)] - ys_std[idx + i * len(metrics)],
                          ys_mean[idx + i * len(metrics)] + ys_std[idx + i * len(metrics)],
                          alpha=0.7)
     plt.grid()
+    plt.legend()
     plt.show()
 
 
