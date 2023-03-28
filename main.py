@@ -85,7 +85,7 @@ def main(args, ITE=0):
                         step = step + 1
             else:
                 archs_utils.original_initialization(model, mask, initial_state_dict)
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.decay)
         print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
 
         # Print the table of Nonzeros in each layer
@@ -209,7 +209,7 @@ if __name__ == "__main__":
     parser.add_argument("--decay", default=1e-4, type=float, help="Weight decay")
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--start_epoch", default=0, type=int)
-    parser.add_argument("--end_epoch", default=10, type=int)
+    parser.add_argument("--end_epoch", default=32, type=int)
     parser.add_argument("--print_freq", default=1, type=int)
     parser.add_argument("--valid_freq", default=1, type=int)
     parser.add_argument("--resume", action="store_true")
