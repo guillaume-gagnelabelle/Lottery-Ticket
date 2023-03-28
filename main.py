@@ -31,8 +31,7 @@ def main(args, ITE=0):
     utils.set_seed(args)
 
     project = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}_{args.co2_tracking_mode}.pt"
-    print(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}.pt")
-
+    print(project)
 
     # Wandb initialization
     wandb.init(project=project, entity="ift3710-h23", config=args)
@@ -140,8 +139,8 @@ def main(args, ITE=0):
         "initial_state_dict": initial_state_dict,
         "best_state_dict": best_state_dict,
         "final_state_dict": final_state_dict,
-    },
-        f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}.pt")
+    }, project
+    )
 
     # Carbon Emissions
     # tracker.add_metric("Energy Consumption (Joules)", tracker.emissions)
