@@ -41,25 +41,27 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    project = "energy_per_image_"
-    tracker = EmissionsTracker(project_name=project,
-                               measure_power_secs=1,
-                               tracking_mode="process",
-                               log_level="critical",
-                               save_to_logger=True
-                               )
-    tracker.start()
-    start = time.time()
-
-    model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/logs_lt_pp90x2_0.pt")["final_state_dict"]
-    model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/logs_lt_pp68x3_0.pt")["final_state_dict"]
-    model_pruned_90x1 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/logs_regular_pp90x1_0.pt")["final_state_dict"]  # not pruned
+    projects = ["inference_lt_pp90x2_seed0", "inference_lt_pp68x3_seed0", "inference_regular_pp0x1_seed0"]
+    model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/logs_lt_pp90x2_seed0_co2False_lr0.0012_wd0.0001.pt")["final_state_dict"]
+    model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/logs_lt_pp68x3_seed0_co2False_lr0.0012_wd0.0001.pt")["final_state_dict"]
+    model_pruned_90x1 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/logs_regular_pp0x1_seed0_co2False_lr0.0012_wd0.0001.pt")["final_state_dict"]  # not pruned
 
     data_loader, _, _ = getData(args, train_percent=1.0, val_percent=0.0)
     criterion = nn.CrossEntropyLoss()
 
     model = getModel(args)
-    for model_state in [model_pruned_68x3, model_pruned_90x2, model_pruned_90x1]:
+    for idx, model_state in enumerate([model_pruned_68x3, model_pruned_90x2, model_pruned_90x1]):
+        tracker = EmissionsTracker(project_name=projects[idx],
+                                   measure_power_secs=1,
+                                   tracking_mode="process",
+                                   log_level="critical",
+                                   output_dir="saves/fc1/mnist",
+                                   output_file=projects[idx],
+                                   save_to_logger=True
+                                   )
+        tracker.start()
+        start = time.time()
+
         model.load_state_dict(model_state)
         model.eval()
 
@@ -68,9 +70,9 @@ if __name__ == "__main__":
         for i in range(5):
             data_loader, _, _ = getData(args, train_percent=0.2, val_percent=0.0)
             test_loss[i], test_acc[i] = test(model, data_loader, criterion)
+            tracker.flush()
         print(test_loss.mean(), "±", test_loss.std())
         print(test_acc.mean(), "±", test_acc.std())
         print()
-        tracker.flush()
 
-    tracker.stop()
+        tracker.stop()
