@@ -236,9 +236,6 @@ if __name__ == "__main__":
         args.prune_iterations = 1  # No pruning with regular training
     print(args.device)
 
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"] = "1" if args.device == "cuda" else "0"  # args.gpu
-
     # FIXME resample
     resample = False
 

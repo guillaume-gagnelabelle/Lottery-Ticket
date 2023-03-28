@@ -16,9 +16,9 @@ import pandas as pd
 
 seeds = [0, 1, 2]
 metrics = ["duration","emissions","emissions_rate","cpu_power","gpu_power","ram_power","cpu_energy","gpu_energy","ram_energy","energy_consumed"]
-units = []
+units = [" [s]", " [kg]", " [kg/s]", " [W]", " [W]", " [W]", " [kW]", " [kW]", " [kW]", " [kW]"]
 
-for metric in metrics:
+for idx, metric in enumerate(metrics):
     plt.figure()
     x = []
     y = []
@@ -29,6 +29,7 @@ for metric in metrics:
     y = np.array(y)
     plt.plot(x[0], y.mean(0))
     plt.fill_between(x[0], y.mean(0) - y.std(0), y.mean(0) + y.std(0), alpha=0.3)
+    plt.ylabel(metric + units[idx])
     plt.grid()
     plt.title(metric)
     plt.show()
