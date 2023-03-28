@@ -16,6 +16,7 @@ import pandas as pd
 
 seeds = [0, 1, 2]
 metrics = ["duration","emissions","emissions_rate","cpu_power","gpu_power","ram_power","cpu_energy","gpu_energy","ram_energy","energy_consumed"]
+units = []
 
 for metric in metrics:
     plt.figure()
