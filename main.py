@@ -30,8 +30,10 @@ def main(args, ITE=0):
     args.nb_images_seen = 0  # in unit of the number of training images seen
     utils.set_seed(args)
 
-    project = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}_{args.co2_tracking_mode}.pt"
-    print(project)
+    project = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}_{args.co2_tracking_mode}"
+    projectPT = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}_{args.co2_tracking_mode}.pt"
+    projectCSV = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_{args.seed}_{args.co2_tracking_mode}.csv"
+    print(projectPT)
 
     # Wandb initialization
     wandb.init(project=project, entity="ift3710-h23", config=args)
@@ -41,7 +43,8 @@ def main(args, ITE=0):
                                measure_power_secs=1,
                                tracking_mode="process",
                                log_level="critical",
-                               save_to_logger=True
+                               save_to_logger=True,
+                               output_file=projectCSV
                                )
     tracker.start()
     start = time.time()
@@ -56,7 +59,7 @@ def main(args, ITE=0):
     initial_state_dict = copy.deepcopy(model.state_dict())
 
     mask = archs_utils.make_mask(model)
-    optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-4)
+    optimizer = torch.optim.Adam(model.parameters(), weight_decay=args.decay)
     criterion = nn.CrossEntropyLoss()
 
     for name, param in model.named_parameters():
@@ -139,7 +142,7 @@ def main(args, ITE=0):
         "initial_state_dict": initial_state_dict,
         "best_state_dict": best_state_dict,
         "final_state_dict": final_state_dict,
-    }, project
+    }, projectPT
     )
 
     # Carbon Emissions
@@ -202,6 +205,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--lr", default=1.2e-3, type=float, help="Learning rate")
+    parser.add_argument("--decay", default=1e-4, type=float, help="Weight decay")
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--start_epoch", default=0, type=int)
     parser.add_argument("--end_epoch", default=10, type=int)
