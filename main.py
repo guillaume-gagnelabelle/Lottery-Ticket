@@ -216,7 +216,7 @@ if __name__ == "__main__":
     parser.add_argument("--decay", default=1e-4, type=float, help="Weight decay")
     parser.add_argument("--batch_size", default=32, type=int)
     parser.add_argument("--start_epoch", default=0, type=int)
-    parser.add_argument("--end_epoch", default=10, type=int)
+    parser.add_argument("--end_epoch", default=32, type=int)
     parser.add_argument("--print_freq", default=1, type=int)
     parser.add_argument("--valid_freq", default=1, type=int)
     parser.add_argument("--resume", action="store_true")
