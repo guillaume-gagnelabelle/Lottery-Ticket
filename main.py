@@ -44,6 +44,7 @@ def main(args, ITE=0):
                                tracking_mode="process",
                                log_level="critical",
                                save_to_logger=True,
+                               output_dir=f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}",
                                output_file=projectCSV
                                )
     tracker.start()
@@ -142,7 +143,7 @@ def main(args, ITE=0):
         "initial_state_dict": initial_state_dict,
         "best_state_dict": best_state_dict,
         "final_state_dict": final_state_dict,
-    }, projectPT
+    }, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/"+projectPT
     )
 
     # Carbon Emissions
