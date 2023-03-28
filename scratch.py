@@ -19,7 +19,7 @@ ys_std = []
 for log in logs:
     dicts = []
     for seed in seeds:
-        dicts.append(torch.load(f"{os.getcwd()}/saves/fc1/mnist/{log}_{seed}.pt"))
+        dicts.append(torch.load(f"{os.getcwd()}/saves/fc1/mnist/{log}_{seed}_False.pt"))
 
     for metric in metrics:
 
