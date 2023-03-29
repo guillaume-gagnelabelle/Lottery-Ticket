@@ -30,9 +30,9 @@ def main(args, ITE=0):
     args.nb_images_seen = 0  # in unit of the number of training images seen
     utils.set_seed(args)
 
-    project = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_lr{args.lr}_wd{args.decay}"
-    projectPT = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_lr{args.lr}_wd{args.decay}.pt"
-    projectCSV = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_lr{args.lr}_wd{args.decay}.csv"
+    project = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_{args.dataset}"
+    projectPT = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_{args.dataset}.pt"
+    projectCSV = f"logs_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_{args.dataset}.csv"
     print(projectPT)
 
     # Wandb initialization
