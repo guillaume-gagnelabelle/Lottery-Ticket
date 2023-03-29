@@ -7,8 +7,8 @@ import numpy as np
 
 
 logs = ["logs_lt_pp68x3","logs_lt_pp90x2","logs_regular_pp0x1"]
-metrics = ["non_zeros_weights", "test_loss", "test_accuracy", "train_loss", "train_accuracy"]
-units = [" %", "", " %", "", " %"]
+metrics = ["non_zeros_weights", "test_loss", "test_accuracy", "train_loss", "train_accuracy", "val_loss", "val_accuracy"]
+units = [" %", "", " %", "", " %", "", " %"]
 legends = ["lt_pp68x3", "lt_pp90x2", "regular_pp0x1"]
 seeds = [0, 1, 2]
 
