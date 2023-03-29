@@ -60,7 +60,7 @@ def main(args, ITE=0):
     initial_state_dict = copy.deepcopy(model.state_dict())
 
     mask = archs_utils.make_mask(model)
-    optimizer = torch.optim.Adam(model.parameters(), weight_decay=args.decay)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.decay)
     criterion = nn.CrossEntropyLoss()
 
     for name, param in model.named_parameters():
@@ -227,6 +227,7 @@ if __name__ == "__main__":
     parser.add_argument("--prune_iterations", default=2, type=int, help="Pruning iterations count")
     parser.add_argument("--train_type", default="lt", type=str, help="lt | regular")
     parser.add_argument("--co2_tracking_mode", action="store_true")
+    parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
 
     args = parser.parse_args()
     args.logs = defaultdict(OrderedDict)
@@ -240,5 +241,5 @@ if __name__ == "__main__":
     resample = False
 
     # Looping Entire process
-    for i in range(0, 3):
+    for i in args.seeds:
         main(args, ITE=i)
