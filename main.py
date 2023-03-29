@@ -9,7 +9,7 @@ import os
 from tensorboardX import SummaryWriter
 import seaborn as sns
 import pickle
-from codecarbon import EmissionsTracker
+from codecarbon import EmissionsTracker, OfflineEmissionsTracker
 from collections import defaultdict, OrderedDict
 import wandb
 import logging

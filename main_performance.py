@@ -12,7 +12,12 @@ units = [" %", "", " %", "", " %", "", " %"]
 legends = ["lt_pp68x3", "lt_pp90x2", "regular_pp0x1"]
 seeds = [0]
 
-logs = ["lr0.01_wd1e-05", "lr0.001_wd1e-05", "lr0.0001_wd1e-05", "lr1e-05_wd1e-05"]
+logs = ["lr0.01_wd1e-05", "lr0.001_wd1e-05", "lr0.0001_wd1e-05", "lr1e-05_wd1e-05",
+        "lr0.01_wd0.0001", "lr0.001_wd0.0001", "lr0.0001_wd0.0001", "lr1e-05_wd0.0001",
+        "lr0.01_wd0.001", "lr0.001_wd0.001", "lr0.0001_wd0.001", "lr1e-05_wd0.001",
+        "lr0.01_wd0.01", "lr0.001_wd0.01", "lr0.0001_wd0.01", "lr1e-05_wd0.01",
+        ]
+logs = [logs[2]]  # best
 legends = logs
 
 nb_seen_images = []
