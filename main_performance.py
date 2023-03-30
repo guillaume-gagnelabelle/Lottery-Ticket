@@ -9,15 +9,16 @@ import numpy as np
 logs = ["logs_lt_pp68x3","logs_lt_pp90x2","logs_regular_pp0x1"]
 metrics = ["non_zeros_weights", "test_loss", "test_accuracy", "train_loss", "train_accuracy", "val_loss", "val_accuracy"]
 units = [" %", "", " %", "", " %", "", " %"]
-legends = ["lt_pp68x3", "lt_pp90x2", "regular_pp0x1"]
+legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
 seeds = [0]
 
-logs = ["lr0.01_wd1e-05", "lr0.001_wd1e-05", "lr0.0001_wd1e-05", "lr1e-05_wd1e-05",
-        "lr0.01_wd0.0001", "lr0.001_wd0.0001", "lr0.0001_wd0.0001", "lr1e-05_wd0.0001",
-        "lr0.01_wd0.001", "lr0.001_wd0.001", "lr0.0001_wd0.001", "lr1e-05_wd0.001",
-        "lr0.01_wd0.01", "lr0.001_wd0.01", "lr0.0001_wd0.01", "lr1e-05_wd0.01",
-        ]
-logs = [logs[2]]  # best
+# logs = ["lr0.01_wd1e-05", "lr0.001_wd1e-05", "lr0.0001_wd1e-05", "lr1e-05_wd1e-05",
+#         "lr0.01_wd0.0001", "lr0.001_wd0.0001", "lr0.0001_wd0.0001", "lr1e-05_wd0.0001",
+#         "lr0.01_wd0.001", "lr0.001_wd0.001", "lr0.0001_wd0.001", "lr1e-05_wd0.001",
+#         "lr0.01_wd1e-06", "lr0.001_wd1e-06", "lr0.0001_wd1e-06", "lr1e-05_wd1e-06",
+#         ]
+# logs = ["logs_regular_pp0x1"]
+# logs = [logs[2]]  # best
 legends = logs
 
 nb_seen_images = []
@@ -27,8 +28,9 @@ ys_std = []
 for log in logs:
     dicts = []
     for seed in seeds:
-        # dicts.append(torch.load(f"{os.getcwd()}/saves/fc1/mnist/{log}_seed{seed}_co2False_lr0.0012_wd0.0001.pt"))
-        dicts.append(torch.load(f"{os.getcwd()}/saves/fc1/mnist/logs_regular_pp0x1_seed{seed}_co2False_{log}.pt", map_location=torch.device('cpu')))
+        dicts.append(torch.load(f"{os.getcwd()}/saves/fc1/mnist/new_run/{log}_seed{seed}_co2False_mnist.pt", map_location=torch.device('cpu')))
+        # dicts.append(torch.load(f"{os.getcwd()}/saves/lenet5/cifar10/new_run/{log}_seed{seed}_co2False_cifar10.pt", map_location=torch.device('cpu')))
+        # dicts.append(torch.load(f"{os.getcwd()}/saves/lenet5/cifar10/logs_regular_pp0x1_seed{seed}_co2False_{log}.pt", map_location=torch.device('cpu')))
 
     for metric in metrics:
 

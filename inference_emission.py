@@ -16,7 +16,7 @@ import pandas as pd
 
 logs = ["inference_lt_pp68x3", "inference_lt_pp90x2", "inference_regular_pp0x1"]
 legends = ["lt_pp68x3", "lt_pp90x2", "regular_pp0x1"]
-seeds = [0, 1, 2]
+seeds = [0, 1, 2, 3, 4]
 metrics = ["duration", "emissions", "emissions_rate", "cpu_power", "gpu_power", "ram_power", "cpu_energy", "gpu_energy",
            "ram_energy", "energy_consumed"]
 units = [" [s]", " [kg]", " [kg/s]", " [W]", " [W]", " [W]", " [kW]", " [kW]", " [kW]", " [kW]"]
@@ -27,14 +27,16 @@ for idx, metric in enumerate(metrics):
     for log in logs:
         y = []
         for seed in seeds:
-            emissions = pd.read_csv(f"saves/fc1/mnist/{log}_seed{seed}.csv").to_dict()
+            emissions = pd.read_csv(f"saves/fc1/mnist/inference/{log}_seed{seed}.csv").to_dict()
             if len(y) == 0: x = list(emissions[metric].keys())[:-1]
             y.append(list(emissions[metric].values())[:-1])
+        x = np.array(x)*50000
         y = np.array(y)
+        print(y.shape)
         plt.plot(x, y.mean(0), label=log)
         plt.fill_between(x, y.mean(0) - y.std(0), y.mean(0) + y.std(0), alpha=0.3)
     plt.ylabel(metric + units[idx])
-    plt.xlabel("nb_inference [x50 000]")
+    plt.xlabel("nombre d'inférences")
     plt.grid()
     plt.title(metric)
     plt.legend()
@@ -46,7 +48,7 @@ for idx, metric in enumerate(metrics):
     for log in logs:
         y = []
         for seed in seeds:
-            emissions = pd.read_csv(f"saves/fc1/mnist/{log}_seed{seed}.csv").to_dict()
+            emissions = pd.read_csv(f"saves/fc1/mnist/inference/{log}_seed{seed}.csv").to_dict()
             if len(y) == 0: x = list(emissions["duration"].values())[:-1]
             y.append(list(emissions[metric].values())[:-1])
         y = np.array(y)

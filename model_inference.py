@@ -40,23 +40,23 @@ if __name__ == "__main__":
     args = parser.parse_args()
     args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    for seed in [0, 1, 2]:
+    for seed in [0, 1, 2, 3, 4]:
 
         projects = [f"inference_lt_pp68x3_seed{seed}.csv", f"inference_lt_pp90x2_seed{seed}.csv", f"inference_regular_pp0x1_seed{seed}.csv"]
-        model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/logs_lt_pp90x2_seed{seed}_co2False_lr0.0012_wd0.0001.pt")["final_state_dict"]
-        model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/logs_lt_pp68x3_seed{seed}_co2False_lr0.0012_wd0.0001.pt")["final_state_dict"]
-        model_pruned_90x1 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/logs_regular_pp0x1_seed{seed}_co2False_lr0.0012_wd0.0001.pt")["final_state_dict"]  # not pruned
+        model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/new_run/logs_lt_pp90x2_seed{seed}_co2False_mnist.pt", map_location=torch.device(args.device))["final_state_dict"]
+        model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/new_run/logs_lt_pp68x3_seed{seed}_co2False_mnist.pt", map_location=torch.device(args.device))["final_state_dict"]
+        model_pruned_90x1 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/new_run/logs_regular_pp0x1_seed{seed}_co2False_mnist.pt", map_location=torch.device(args.device))["final_state_dict"]  # not pruned
 
         data_loader, _, _ = getData(args, train_percent=1.0, val_percent=0.0)
         criterion = nn.CrossEntropyLoss()
 
-        model = getModel(args)
+        model = getModel(args).to(args.device)
         for idx, model_state in enumerate([model_pruned_68x3, model_pruned_90x2, model_pruned_90x1]):
             tracker = EmissionsTracker(project_name=projects[idx],
                                        measure_power_secs=1,
                                        tracking_mode="process",
                                        log_level="critical",
-                                       output_dir="saves/fc1/mnist",
+                                       output_dir="saves/fc1/mnist/inference/",
                                        output_file=projects[idx],
                                        save_to_logger=True
                                        )
