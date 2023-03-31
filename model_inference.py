@@ -43,9 +43,9 @@ if __name__ == "__main__":
     for seed in [0, 1, 2, 3, 4]:
 
         projects = [f"inference_lt_pp68x3_seed{seed}.csv", f"inference_lt_pp90x2_seed{seed}.csv", f"inference_regular_pp0x1_seed{seed}.csv"]
-        model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/new_run/logs_lt_pp90x2_seed{seed}_co2False_mnist.pt", map_location=torch.device(args.device))["final_state_dict"]
-        model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/new_run/logs_lt_pp68x3_seed{seed}_co2False_mnist.pt", map_location=torch.device(args.device))["final_state_dict"]
-        model_pruned_90x1 = torch.load(f"{os.getcwd()}/saves/fc1/mnist/new_run/logs_regular_pp0x1_seed{seed}_co2False_mnist.pt", map_location=torch.device(args.device))["final_state_dict"]  # not pruned
+        model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run/logs_lt_pp90x2_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
+        model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run/logs_lt_pp68x3_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
+        model_pruned_90x1 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run/logs_regular_pp0x1_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]  # not pruned
 
         data_loader, _, _ = getData(args, train_percent=1.0, val_percent=0.0)
         criterion = nn.CrossEntropyLoss()
@@ -56,7 +56,7 @@ if __name__ == "__main__":
                                        measure_power_secs=1,
                                        tracking_mode="process",
                                        log_level="critical",
-                                       output_dir="saves/fc1/mnist/inference/",
+                                       output_dir=f"saves/{args.arch_type}/{args.dataset}/inference/",
                                        output_file=projects[idx],
                                        save_to_logger=True
                                        )
