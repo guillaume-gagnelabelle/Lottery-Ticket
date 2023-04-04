@@ -16,11 +16,18 @@ import pandas as pd
 import numpy.ma as ma
 from itertools import zip_longest
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--dataset", default="cifar10", type=str, help="mnist | cifar10")
+parser.add_argument("--arch_type", default="lenet5", type=str, help="fc1 | lenet5")
+
+args = parser.parse_args()
+# args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 
 logs = ["logs_lt_pp68x3", "logs_lt_pp90x2", "logs_regular_pp0x1"]
 legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
 metrics = ["duration", "emissions", "emissions_rate", "cpu_power", "gpu_power", "ram_power", "cpu_energy", "gpu_energy", "ram_energy", "energy_consumed"]
-y_titles = ["Durée [s]", "Émissions de CO2 [kg]", "Taux d'émissions de CO2 [kg/s]", "Puissance CPU [W]", "Puissance GPU [W]", "Puissance RAM [W]", "Énergie CPU [kW]", "Énergie GPU [kW]", "Énergie RAM [kW]", "Énergie consommée [kW]"]
+y_titles = ["Durée [s]", "Émissions de CO2 [kg]", "Taux d'émissions de CO2 [kg/s]", "Puissance CPU [W]", "Puissance GPU [W]", "Puissance RAM [W]", "Énergie CPU [kWh]", "Énergie GPU [kWh]", "Énergie RAM [kWh]", "Énergie consommée [kWh]"]
 seeds = [0, 1, 2, 3, 4]
 
 # Plots vs nb_seen_images
@@ -30,7 +37,7 @@ for idx, metric in enumerate(metrics):
         x = []
         y = []
         for seed in seeds:
-            emissions = pd.read_csv(f"saves/fc1/mnist/new_run/{log}_seed{seed}_co2True_mnist.csv").to_dict()
+            emissions = pd.read_csv(f"saves/{args.arch_type}/{args.dataset}/new_run/{log}_seed{seed}_co2True_{args.dataset}.csv").to_dict()
             x.append(list(emissions[metric].keys()))
             y.append(list(emissions[metric].values()))
 
@@ -40,10 +47,10 @@ for idx, metric in enumerate(metrics):
 
         plt.plot(x, y_mean, label=legends[i])
         plt.fill_between(x, y_mean - y_std, y_mean + y_std, alpha=0.3)
+        print(metric, ": ", np.array(y_mean).mean(), "±", np.array(y_std).mean())
     plt.ylabel(y_titles[idx])
     plt.xlabel("Nombre d'images d'entraînement")
     plt.grid()
-    plt.title(metric)
     plt.legend()
     plt.show()
 
@@ -54,7 +61,7 @@ for idx, metric in enumerate(metrics):
         x = []
         y = []
         for seed in seeds:
-            emissions = pd.read_csv(f"saves/fc1/mnist/new_run/{log}_seed{seed}_co2True_mnist.csv").to_dict()
+            emissions = pd.read_csv(f"saves/{args.arch_type}/{args.dataset}/new_run/{log}_seed{seed}_co2True_{args.dataset}.csv").to_dict()
             x.append(list(emissions["duration"].values()))
             y.append(list(emissions[metric].values()))
         x = np.nanmean(np.array(list(zip_longest(*x)), dtype=float), axis=1)
@@ -62,9 +69,10 @@ for idx, metric in enumerate(metrics):
         y_std = np.nanstd(np.array(list(zip_longest(*y)), dtype=float), axis=1, ddof=1)
         plt.plot(x, y_mean, label=legends[i])
         plt.fill_between(x, y_mean - y_std, y_mean + y_std, alpha=0.3)
+        print(metric, ": ", np.array(y_mean).mean(), "±", np.array(y_std).mean())
+
     plt.ylabel(y_titles[idx])
     plt.xlabel("Durée [s]")
     plt.grid()
-    plt.title(metric)
     plt.legend()
     plt.show()

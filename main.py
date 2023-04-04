@@ -180,10 +180,10 @@ def train(model, train_loader, optimizer, criterion, args):
             # Freezing Pruned weights by making their gradients Zero
             for name, p in model.named_parameters():
                 if 'weight' in name:
-                    tensor = p.data.cpu().numpy()
-                    grad_tensor = p.grad.data.cpu().numpy()
-                    grad_tensor = np.where(tensor < EPS, 0, grad_tensor)
-                    p.grad.data = torch.from_numpy(grad_tensor).to(args.device)
+                    tensor = p.data
+                    grad_tensor = p.grad
+                    grad_tensor = torch.where(tensor.abs() < EPS, torch.zeros_like(grad_tensor), grad_tensor)
+                    p.grad.data = grad_tensor
         optimizer.step()
 
     train_loss /= len(train_loader.dataset)
@@ -213,9 +213,9 @@ def test(model, test_loader, criterion):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--lr", default=1.2e-3, type=float, help="Learning rate")
-    parser.add_argument("--decay", default=1e-4, type=float, help="Weight decay")
-    parser.add_argument("--batch_size", default=32, type=int)
+    parser.add_argument("--lr", default=0.001, type=float, help="Learning rate")
+    parser.add_argument("--decay", default=0.001, type=float, help="Weight decay")
+    parser.add_argument("--batch_size", default=256, type=int)
     parser.add_argument("--start_epoch", default=0, type=int)
     parser.add_argument("--end_epoch", default=32, type=int)
     parser.add_argument("--print_freq", default=1, type=int)
@@ -228,7 +228,7 @@ if __name__ == "__main__":
     parser.add_argument("--prune_iterations", default=2, type=int, help="Pruning iterations count")
     parser.add_argument("--train_type", default="lt", type=str, help="lt | regular")
     parser.add_argument("--co2_tracking_mode", action="store_true")
-    parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2])
+    parser.add_argument("--seeds", type=int, nargs="+", default=[0, 1, 2, 3, 4])
 
     args = parser.parse_args()
     args.logs = defaultdict(OrderedDict)
