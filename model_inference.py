@@ -43,9 +43,9 @@ if __name__ == "__main__":
     for seed in [0, 1, 2, 3, 4]:
 
         projects = [f"inference_NEW_lt_pp68x3_seed{seed}.csv", f"inference_NEW_lt_pp90x2_seed{seed}.csv", f"inference_NEW_regular_pp0x1_seed{seed}.csv"]
-        model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/logs_lt_pp90x2_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
-        model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/logs_lt_pp68x3_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
-        model_pruned_90x1 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/logs_regular_pp0x1_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]  # not pruned
+        model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/logs_NEW_lt_pp90x2_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
+        model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/logs_NEW_lt_pp68x3_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
+        model_pruned_90x1 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/logs_NEW_regular_pp0x1_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]  # not pruned
 
         _, _, data_loader = getData(args)
         criterion = nn.CrossEntropyLoss()
