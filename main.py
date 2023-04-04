@@ -215,7 +215,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--lr", default=0.001, type=float, help="Learning rate")
     parser.add_argument("--decay", default=0.001, type=float, help="Weight decay")
-    parser.add_argument("--batch_size", default=256, type=int)
+    parser.add_argument("--batch_size", default=512, type=int)
     parser.add_argument("--start_epoch", default=0, type=int)
     parser.add_argument("--end_epoch", default=32, type=int)
     parser.add_argument("--print_freq", default=1, type=int)
