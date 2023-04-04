@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dataset", default="cifar10", type=str, help="mnist | cifar10")
-parser.add_argument("--arch_type", default="lenet5", type=str, help="fc1 | lenet5")
+parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10")
+parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5")
 
 args = parser.parse_args()
 # args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

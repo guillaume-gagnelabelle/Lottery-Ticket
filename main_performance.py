@@ -7,8 +7,8 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--dataset", default="cifar10", type=str, help="mnist | cifar10")
-parser.add_argument("--arch_type", default="lenet5", type=str, help="fc1 | lenet5")
+parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10")
+parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5")
 parser.add_argument("--perf_type", default="lt", type=str, help="lt | hyperparameter")
 
 args = parser.parse_args()
@@ -25,6 +25,7 @@ y_label = ["Paramètres non-nuls [%]", "Erreur de test", "Précision de test  [%
 
 if args.perf_type == "lt":
     logs = ["logs_lt_pp68x3", "logs_lt_pp90x2", "logs_regular_pp0x1"]
+    logs = ["logs_NEW_lt_pp68x3", "logs_NEW_lt_pp90x2", "logs_NEW_regular_pp0x1"]
     seeds = [0, 1, 2, 3, 4]
     legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
 else:
@@ -47,7 +48,7 @@ for log in logs:
     dicts = []
     for seed in seeds:
         if args.perf_type == "lt":
-            dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run/{log}_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device('cpu')))
+            dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{log}_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device('cpu')))
         else:
             dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_regular_pp0x1_seed{seed}_co2False_{log}.pt", map_location=torch.device('cpu')))
             # dicts.append(torch.load(f"{os.getcwd()}/saves/lenet5/cifar10/logs_regular_pp0x1_seed{seed}_co2False_{log}.pt", map_location=torch.device('cpu')))
