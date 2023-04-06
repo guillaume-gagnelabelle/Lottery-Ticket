@@ -1,5 +1,4 @@
 # Lottery Ticket Hypothesis in Pytorch 
-[![Made With python 3.7](https://img.shields.io/badge/Made%20with-Python%203.7-brightgreen)]() [![Maintenance](https://img.shields.io/badge/Maintained%3F-no-red.svg)]() [![Open Source Love svg1](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)]() 
 
 This repository contains a **Pytorch** implementation of the paper [The Lottery Ticket Hypothesis: Finding Sparse, Trainable Neural Networks](https://arxiv.org/abs/1803.03635) by [Jonathan Frankle](https://github.com/jfrankle) and [Michael Carbin](https://people.csail.mit.edu/mcarbin/) that can be **easily adapted to any model/dataset**.
 		
@@ -10,33 +9,30 @@ pip3 install -r requirements.txt
 ## How to run the code ? 
 ### Using datasets/architectures included with this repository :
 ```
-python3 main.py --prune_type=lt --arch_type=fc1 --dataset=mnist --prune_percent=10 --prune_iterations=35
+python3 lottery_ticket.py --arch_type=fc1 --dataset=mnist --prune_percent=90 --prune_iterations=2
 ```
-- `--prune_type` : Type of pruning  
-	- Options : `lt` - Lottery Ticket Hypothesis, `reinit` - Random reinitialization
-	- Default : `lt`
+
 - `--arch_type`	 : Type of architecture
-	- Options : `fc1` - Simple fully connected network, `lenet5` - LeNet5, `AlexNet` - AlexNet, `resnet18` - Resnet18, `vgg16` - VGG16 
+	- Options : `fc1` - Simple fully connected network, `lenet5` - LeNet5,  `resnet18` - Resnet18,
 	- Default : `fc1`
 - `--dataset`	: Choice of dataset 
-	- Options : `mnist`, `fashionmnist`, `cifar10`, `cifar100` 
+	- Options : `mnist`, `cifar10` 
 	- Default : `mnist`
 - `--prune_percent`	: Percentage of weight to be pruned after each cycle. 
-	- Default : `10`
-- `--prune_iterations`	: Number of cycle of pruning that should be done. 
-	- Default : `35`
+	- Default : `90`
+- `--prune_iterations`	: Number of cycle of pruning that should be done (1 for no pruning). 
+	- Default : `2`
 - `--lr`	: Learning rate 
 	- Default : `1.2e-3`
 - `--batch_size`	: Batch size 
-	- Default : `60`
+	- Default : `64`
 - `--end_iter`	: Number of Epochs 
-	- Default : `100`
+	- Default : `32`
 - `--print_freq`	: Frequency for printing accuracy and loss 
 	- Default : `1`
 - `--valid_freq`	: Frequency for Validation 
 	- Default : `1`
-- `--gpu`	: Decide Which GPU the program should use 
-	- Default : `0`
+
 ### Using datasets/architectures that are not included with this repository :
 - Adding a new architecture :
 	- For example, if you want to add an architecture named `new_model` with `mnist` dataset compatibility. 
@@ -63,51 +59,28 @@ python3 main.py --prune_type=lt --arch_type=fc1 --dataset=mnist --prune_percent=
 			``` 
 			**Note** that as of now, you can only add dataset that are [natively available in Pytorch](https://pytorch.org/docs/stable/torchvision/datasets.html). 
 
-## How to combine the plots of various `prune_type` ?
-- Go to `combine_plots.py` and add/remove the datasets/archs who's combined plot you want to generate (*Assuming that you have already executed the `main.py` code for those dataset/archs and produced the weights*).
-- Run `python3 combine_plots.py`.
-- Go to `/plots/lt/combined_plots/` to see the graphs.
-
-Kindly [raise an issue](https://github.com/rahulvigneswaran/Lottery-Ticket-Hypothesis-in-Pytorch/issues) if you have any problem with the instructions. 
-
-
-## Datasets and Architectures that were already tested
-
-|              | fc1                | LeNet5                | AlexNet                | VGG16                | Resnet18                 |
-|--------------|:------------------:|:---------------------:|:----------------------:|:--------------------:|:------------------------:|
-| MNIST        | :heavy_check_mark: |  :heavy_check_mark:   |   :heavy_check_mark:   |  :heavy_check_mark:  |  	:heavy_check_mark:	   |
-| CIFAR10      | :heavy_check_mark: |  :heavy_check_mark:   |   :heavy_check_mark:   |  :heavy_check_mark:  |	:heavy_check_mark:	   |
-| FashionMNIST | :heavy_check_mark: |  :heavy_check_mark:   |   :heavy_check_mark:   |  :heavy_check_mark:  |	:heavy_check_mark:	   |
-| CIFAR100     | :heavy_check_mark: |  :heavy_check_mark:   |   :heavy_check_mark:   |  :heavy_check_mark:  |	:heavy_check_mark:     |
 
 
 ## Repository Structure
 ```
 Lottery-Ticket-Hypothesis-in-Pytorch
 ├── archs
+|   ├── archs_utils.py
 │   ├── cifar10
-│   │   ├── AlexNet.py
-│   │   ├── densenet.py
 │   │   ├── fc1.py
 │   │   ├── LeNet5.py
-│   │   ├── resnet.py
-│   │   └── vgg.py
-│   ├── cifar100
-│   │   ├── AlexNet.py
-│   │   ├── fc1.py
-│   │   ├── LeNet5.py
-│   │   ├── resnet.py
-│   │   └── vgg.py
+│   │   └── resnet.py
 │   └── mnist
-│       ├── AlexNet.py
 │       ├── fc1.py
 │       ├── LeNet5.py
-│       ├── resnet.py
-│       └── vgg.py
-├── combine_plots.py
-├── dumps
-├── main.py
+│       └── resnet.py
+├── data
+├── inference_emission.py
+├── lottery_ticket.py
+├── lottery_ticket_emissions.py
+├── lottery_ticket_performance.py
 ├── plots
+├── post_training_inference.py
 ├── README.md
 ├── requirements.txt
 ├── saves
@@ -115,16 +88,5 @@ Lottery-Ticket-Hypothesis-in-Pytorch
 
 ```
 
-## Interesting papers that are related to Lottery Ticket Hypothesis which I enjoyed 
-- [Deconstructing Lottery Tickets: Zeros, Signs, and the Supermask](https://eng.uber.com/deconstructing-lottery-tickets/)
-
 ## Acknowledgement 
 Parts of code were borrowed from [ktkth5](https://github.com/ktkth5/lottery-ticket-hyopothesis).
-
-## Issue / Want to Contribute ? :
-Open a new issue or do a pull request incase you are facing any difficulty with the code base or if you want to contribute to it.
-
-[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://github.com/rahulvigneswaran/Lottery-Ticket-Hypothesis-in-Pytorch/issues)
-
-<a href="https://www.buymeacoffee.com/MfgDK7aSC" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
-
