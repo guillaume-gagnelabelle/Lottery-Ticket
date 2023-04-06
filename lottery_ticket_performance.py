@@ -50,8 +50,7 @@ for log in logs:
         if args.perf_type == "lt":
             dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{log}_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device('cpu')))
         else:
-            dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/logs_regular_pp0x1_seed{seed}_co2False_{log}.pt", map_location=torch.device('cpu')))
-            # dicts.append(torch.load(f"{os.getcwd()}/saves/lenet5/cifar10/logs_regular_pp0x1_seed{seed}_co2False_{log}.pt", map_location=torch.device('cpu')))
+            dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/hyperSearch/logs_regular_pp0x1_seed{seed}_co2False_{log}.pt", map_location=torch.device('cpu')))
     for metric in metrics:
 
         images = []
