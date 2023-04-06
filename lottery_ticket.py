@@ -16,7 +16,6 @@ from archs import archs_utils
 
 def main(args, ITE=0):
 
-
     args.seed = ITE
     args.nb_images_seen = 0
     utils.set_seed(args)
