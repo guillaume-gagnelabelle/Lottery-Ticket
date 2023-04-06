@@ -1,33 +1,17 @@
 import argparse
-import copy
 import numpy as np
-from tqdm import tqdm
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import os
-import time
-from codecarbon import EmissionsTracker
-from data.data_utils import getData
-from archs.archs_utils import getModel
-import utils
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy.ma as ma
 from itertools import zip_longest
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10")
 parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5")
-
 args = parser.parse_args()
-# args.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 logs = ["logs_NEW_lt_pp68x3", "logs_NEW_lt_pp90x2", "logs_NEW_regular_pp0x1"]
-# logs = ["logs_NEW_lt_pp68x3", "logs_NEW_regular_pp0x1"]
 legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
-# legends = ["logs_NEW_lt_pp68x3", "Sans élagage"]
 
 metrics = ["duration", "emissions", "emissions_rate", "cpu_power", "gpu_power", "ram_power", "cpu_energy", "gpu_energy", "ram_energy", "energy_consumed"]
 y_titles = ["Durée [s]", "Émissions de CO2 [kg]", "Taux d'émissions de CO2 [kg/s]", "Puissance CPU [W]", "Puissance GPU [W]", "Puissance RAM [W]", "Énergie CPU [kWh]", "Énergie GPU [kWh]", "Énergie RAM [kWh]", "Énergie consommée [kWh]"]

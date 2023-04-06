@@ -7,7 +7,6 @@ import torch.nn.init as init
 def getModel(args):
     if args.dataset == "mnist":
         from archs.mnist import LeNet5, fc1, resnet
-
     elif args.dataset == "cifar10":
         from archs.cifar10 import LeNet5, resnet
 
@@ -24,7 +23,7 @@ def getModel(args):
     return model
 
 
-# ANCHOR Prune by Percentile module
+# Prune by Percentile module
 def prune_by_percentile(model, mask, percent):
     # Calculate percentile value
     step = 0
@@ -46,7 +45,7 @@ def prune_by_percentile(model, mask, percent):
             step += 1
 
 
-# ANCHOR Function to make an empty mask of the same size as the model
+# Function to make an empty mask of the same size as the model
 def make_mask(model):
     step = 0
     for name, param in model.named_parameters():
@@ -73,7 +72,7 @@ def original_initialization(model, mask_temp, initial_state_dict):
             param.data = initial_state_dict[name]
 
 
-# ANCHOR Function for Initialization
+# Function for Initialization
 def weight_init(m):
     '''
     Usage:
