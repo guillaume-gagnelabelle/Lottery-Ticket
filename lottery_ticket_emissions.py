@@ -25,9 +25,9 @@ args = parser.parse_args()
 
 
 logs = ["logs_NEW_lt_pp68x3", "logs_NEW_lt_pp90x2", "logs_NEW_regular_pp0x1"]
-logs = ["logs_NEW_lt_pp68x3", "logs_NEW_regular_pp0x1"]
+# logs = ["logs_NEW_lt_pp68x3", "logs_NEW_regular_pp0x1"]
 legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
-legends = ["logs_NEW_lt_pp68x3", "Sans élagage"]
+# legends = ["logs_NEW_lt_pp68x3", "Sans élagage"]
 
 metrics = ["duration", "emissions", "emissions_rate", "cpu_power", "gpu_power", "ram_power", "cpu_energy", "gpu_energy", "ram_energy", "energy_consumed"]
 y_titles = ["Durée [s]", "Émissions de CO2 [kg]", "Taux d'émissions de CO2 [kg/s]", "Puissance CPU [W]", "Puissance GPU [W]", "Puissance RAM [W]", "Énergie CPU [kWh]", "Énergie GPU [kWh]", "Énergie RAM [kWh]", "Énergie consommée [kWh]"]

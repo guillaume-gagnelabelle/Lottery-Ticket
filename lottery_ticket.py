@@ -1,56 +1,37 @@
 import argparse
 import copy
-import numpy as np
 from tqdm import tqdm
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import os
-from tensorboardX import SummaryWriter
-import seaborn as sns
-import pickle
-from codecarbon import EmissionsTracker, OfflineEmissionsTracker
+from codecarbon import EmissionsTracker
 from collections import defaultdict, OrderedDict
-import wandb
-import logging
 import time
 
 # Custom Libraries
 import utils
 from data import data_utils
 from archs import archs_utils
-from plots import plots_utils
-
-writer = SummaryWriter()
-wandb.login(key="6650aaf8018bf14396b47b6869c885d2156d86c7")
 
 
 def main(args, ITE=0):
+
+
     args.seed = ITE
-    args.nb_images_seen = 0  # in unit of the number of training images seen
+    args.nb_images_seen = 0
     utils.set_seed(args)
-
-
     project = f"logs_NEW_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_{args.dataset}"
-    projectPT = f"logs_NEW_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_{args.dataset}.pt"
-    projectCSV = f"logs_NEW_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_{args.dataset}.csv"
-    print(projectPT)
-
-    # Wandb initialization
-    wandb.init(project=project, entity="ift3710-h23", config=args)
-
-    # Carbon tracker initialization
     tracker = EmissionsTracker(project_name=project,
                                measure_power_secs=1,
                                tracking_mode="process",
                                log_level="critical",
                                save_to_logger=True,
                                output_dir=f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}",
-                               output_file=projectCSV
+                               output_file=project+".csv"
                                )
+    print(project)
     tracker.start()
     start = time.time()
-    reinit = True if args.prune_type == "reinit" else False
 
     train_loader, val_loader, test_loader = data_utils.getData(args)
 
@@ -70,29 +51,17 @@ def main(args, ITE=0):
     # Pruning
     # NOTE First Pruning Iteration is of No Compression
     best_accuracy = 0
-    ITERATION = args.prune_iterations
-    comp = np.zeros(ITERATION, float)
 
-    for _ite in range(args.start_epoch, ITERATION):
-        if not _ite == 0:
-            archs_utils.prune_by_percentile(model, mask, args.prune_percent, resample=resample, reinit=reinit)
-            if reinit:
-                model.apply(archs_utils.weight_init)
-                step = 0
-                for name, param in model.named_parameters():
-                    if 'weight' in name:
-                        weight_dev = param.device
-                        param.data = torch.from_numpy(param.data.cpu().numpy() * mask[step]).to(weight_dev)
-                        step = step + 1
-            else:
-                archs_utils.original_initialization(model, mask, initial_state_dict)
+    for ite in range(args.prune_iterations):
+        if not ite == 0:
+            archs_utils.prune_by_percentile(model, mask, args.prune_percent)
+            archs_utils.original_initialization(model, mask, initial_state_dict)
             optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.decay)
-        print(f"\n--- Pruning Level [{ITE}:{_ite}/{ITERATION}]: ---")
+        print(f"\n--- Pruning Level [{ITE}:{ite}/{args.prune_iterations}]: ---")
 
         # Print the table of Nonzeros in each layer
-        comp1 = utils.print_nonzeros(model)
-        comp[_ite] = comp1
-        args.logs["non_zeros_weights"][args.nb_images_seen] = comp1
+        compression = utils.print_nonzeros(model)
+        args.logs["non_zeros_weights"][args.nb_images_seen] = compression
         pbar = tqdm(range(args.end_epoch))
 
         for iter_ in pbar:
@@ -109,6 +78,7 @@ def main(args, ITE=0):
                     args.logs["co2"][args.nb_images_seen] = 0
 
                 elif args.co2_tracking_mode:
+                    # In co2_tracking_mode, we do not evaluate the performance to not include an emission bias
                     val_loss, val_accuracy, test_loss, test_accuracy = 0, 0, 0, 0
                     args.logs["test_loss"][args.nb_images_seen] = 0
                     args.logs["test_accuracy"][args.nb_images_seen] = 0
@@ -132,7 +102,6 @@ def main(args, ITE=0):
                 pbar.set_description(
                     f'Train Epoch: {iter_}/{args.end_epoch} Loss: {test_loss:.6f} Accuracy: {test_accuracy:.2f}% Best Accuracy: {best_accuracy:.2f}%')
 
-        writer.add_scalar('Accuracy/test', best_accuracy, comp1)
         best_accuracy = 0
 
     # Copying and Saving Final State
@@ -151,12 +120,9 @@ def main(args, ITE=0):
         "initial_state_dict": initial_state_dict,
         "best_state_dict": best_state_dict,
         "final_state_dict": final_state_dict,
-    }, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/"+projectPT
+    }, f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/" + project + ".pt"
     )
 
-    # Carbon Emissions
-    # tracker.add_metric("Energy Consumption (Joules)", tracker.emissions)
-    # tracker.add_metric("CO2 Emissions (kg)", tracker.estimate_carbon_emissions())
     tracker.stop()
 
 
@@ -176,6 +142,7 @@ def train(model, train_loader, optimizer, criterion, args):
         args.nb_images_seen += len(targets)
         loss.backward()
 
+        # --------------------------- PRUNING ------------------------------------
         if args.train_type == "lt":
             # Freezing Pruned weights by making their gradients Zero
             for name, p in model.named_parameters():
@@ -184,6 +151,7 @@ def train(model, train_loader, optimizer, criterion, args):
                     grad_tensor = p.grad
                     grad_tensor = torch.where(tensor.abs() < EPS, torch.zeros_like(grad_tensor), grad_tensor)
                     p.grad.data = grad_tensor
+        # ----------------------- END OF PRUNING ---------------------------------
         optimizer.step()
 
     train_loss /= len(train_loader.dataset)
@@ -216,14 +184,12 @@ if __name__ == "__main__":
     parser.add_argument("--lr", default=0.001, type=float, help="Learning rate")
     parser.add_argument("--decay", default=0.001, type=float, help="Weight decay")
     parser.add_argument("--batch_size", default=512, type=int)
-    parser.add_argument("--start_epoch", default=0, type=int)
     parser.add_argument("--end_epoch", default=32, type=int)
     parser.add_argument("--print_freq", default=1, type=int)
     parser.add_argument("--valid_freq", default=1, type=int)
     parser.add_argument("--resume", action="store_true")
-    parser.add_argument("--prune_type", default="lt", type=str, help="lt | reinit")
-    parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10 | fashionmnist | cifar100")
-    parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5 | alexnet | vgg16 | resnet18 | densenet121")
+    parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10")
+    parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5 | resnet18")
     parser.add_argument("--prune_percent", default=90, type=int, help="Pruning percent")
     parser.add_argument("--prune_iterations", default=2, type=int, help="Pruning iterations count")
     parser.add_argument("--train_type", default="lt", type=str, help="lt | regular")
@@ -237,9 +203,6 @@ if __name__ == "__main__":
         args.prune_percent = 0     # single iteration (no pruning)
         args.prune_iterations = 1  # No pruning with regular training
     print(args.device)
-
-    # FIXME resample
-    resample = False
 
     # Looping Entire process
     for i in args.seeds:

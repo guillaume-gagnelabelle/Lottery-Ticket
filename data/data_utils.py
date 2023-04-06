@@ -14,14 +14,6 @@ def getData(args, train_percent=0.7, val_percent=0.15):
         traindataset = datasets.CIFAR10('./data', train=True, download=True, transform=transform)
         testdataset = datasets.CIFAR10('./data', train=False, transform=transform)
 
-    elif args.dataset == "fashionmnist":
-        traindataset = datasets.FashionMNIST('./data', train=True, download=True, transform=transform)
-        testdataset = datasets.FashionMNIST('./data', train=False, transform=transform)
-
-    elif args.dataset == "cifar100":
-        traindataset = datasets.CIFAR100('./data', train=True, download=True, transform=transform)
-        testdataset = datasets.CIFAR100('./data', train=False, transform=transform)
-
     else:
         print("\nWrong Dataset choice \n")
         exit()
