@@ -12,6 +12,7 @@ import time
 import utils
 from data import data_utils
 from archs import archs_utils
+from torch import sparse
 
 
 def main(args, ITE=0):
@@ -150,6 +151,10 @@ def train(model, train_loader, optimizer, criterion, args):
                     grad_tensor = p.grad
                     grad_tensor = torch.where(tensor.abs() < EPS, torch.zeros_like(grad_tensor), grad_tensor)
                     p.grad.data = grad_tensor
+
+                    # Convert the pruned weights to a sparse tensor
+                    sparse_weights = sparse.FloatTensor(p.data._indices(), p.data._values(), p.data.size())
+                    p.data = sparse_weights
         # ----------------------- END OF PRUNING ---------------------------------
         optimizer.step()
 
@@ -175,6 +180,7 @@ def test(model, test_loader, criterion):
 
     model.train()
     return test_loss, accuracy
+
 
 
 if __name__ == "__main__":

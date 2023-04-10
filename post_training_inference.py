@@ -8,6 +8,7 @@ from codecarbon import EmissionsTracker
 from data.data_utils import getData
 from archs.archs_utils import getModel
 import utils
+import torch_sparse
 
 
 def test(model, test_loader, criterion):
@@ -25,6 +26,28 @@ def test(model, test_loader, criterion):
         accuracy = 100. * correct / len(test_loader.dataset)
 
     return test_loss, accuracy
+
+def test_sparse(model, test_loader, criterion):
+    model.eval()
+    test_loss = 0
+    correct = 0
+    with torch.no_grad():
+        # Convert model's weight matrices to sparse representations
+        for name, param in model.named_parameters():
+            if "weight" in name:
+                param.data = torch_sparse.as_sparse(param.data)
+
+        for data, target in test_loader:
+            data, target = data.to(args.device), target.to(args.device)
+            output = model(data)
+            test_loss += criterion(output, target).item()
+            pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
+            correct += pred.eq(target.data.view_as(pred)).sum().item()
+        test_loss /= len(test_loader.dataset)
+        accuracy = 100. * correct / len(test_loader.dataset)
+
+    return test_loss, accuracy
+
 
 
 if __name__ == "__main__":
@@ -66,7 +89,7 @@ if __name__ == "__main__":
             test_loss = np.zeros(10)
             test_acc = np.zeros(10)
             for i in range(10):
-                test_loss[i], test_acc[i] = test(model, data_loader, criterion)
+                test_loss[i], test_acc[i] = test_sparse(model, data_loader, criterion)
                 tracker.flush()
             print(test_loss.mean(), "±", test_loss.std())
             print(test_acc.mean(), "±", test_acc.std())
