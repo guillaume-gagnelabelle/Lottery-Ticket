@@ -7,8 +7,6 @@ import os
 from codecarbon import EmissionsTracker
 from collections import defaultdict, OrderedDict
 import time
-
-# Custom Libraries
 import utils
 from data import data_utils
 from archs import archs_utils
@@ -192,7 +190,6 @@ if __name__ == "__main__":
     parser.add_argument("--end_epoch", default=32, type=int)
     parser.add_argument("--print_freq", default=1, type=int)
     parser.add_argument("--valid_freq", default=1, type=int)
-    parser.add_argument("--resume", action="store_true")
     parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10")
     parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5 | resnet18")
     parser.add_argument("--prune_percent", default=90, type=int, help="Pruning percent")

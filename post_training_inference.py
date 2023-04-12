@@ -89,7 +89,15 @@ if __name__ == "__main__":
             test_loss = np.zeros(10)
             test_acc = np.zeros(10)
             for i in range(10):
-                test_loss[i], test_acc[i] = test_sparse(model, data_loader, criterion)
+                if idx == 2:
+                    args.device = "cuda"
+                    model.to(args.device)
+                    test_loss[i], test_acc[i] = test(model, data_loader, criterion)
+                else:
+                    args.device = "cpu"
+                    model.to(args.device)
+                    test_loss[i], test_acc[i] = test_sparse(model, data_loader, criterion)
+
                 tracker.flush()
             print(test_loss.mean(), "±", test_loss.std())
             print(test_acc.mean(), "±", test_acc.std())
