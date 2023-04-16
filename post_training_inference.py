@@ -8,8 +8,6 @@ from codecarbon import EmissionsTracker
 from data.data_utils import getData
 from archs.archs_utils import getModel
 import utils
-import torch_sparse
-
 
 def test(model, test_loader, criterion):
     model.eval()
@@ -56,6 +54,7 @@ if __name__ == "__main__":
 
     for seed in [0, 1, 2, 3, 4]:
 
+        proj_names = [f"inference_sparse_lt_pp68x3_seed{seed}", f"inference_sparse_lt_pp90x2_seed{seed}", f"inference_sparse_pp0x1_seed{seed}"]
         projects = [f"logs_NEW_lt_pp68x3_seed{seed}", f"logs_NEW_lt_pp90x2_seed{seed}", f"logs_NEW_regular_pp0x1_seed{seed}"]
         model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[0]}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
         model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[1]}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
@@ -71,7 +70,7 @@ if __name__ == "__main__":
                                        tracking_mode="process",
                                        log_level="critical",
                                        output_dir=f"saves/{args.arch_type}/{args.dataset}/inference_sparse/",
-                                       output_file=projects[idx]+".csv",
+                                       output_file=proj_names[idx]+".csv",
                                        save_to_logger=True
                                        )
             tracker.start()

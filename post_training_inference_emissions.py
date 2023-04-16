@@ -9,14 +9,14 @@ parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5")
 args = parser.parse_args()
 
 
-# logs = ["inference_lt_pp68x3", "inference_lt_pp90x2", "inference_regular_pp0x1"]
-logs = ["inference_SPARSE_lt_pp90x2", "inference_SPARSE_regular_pp0x1"]
+logs = ["inference_sparse_lt_pp68x3", "inference_sparse_lt_pp90x2", "inference_sparse_pp0x1"]
+# logs = ["inference_SPARSE_lt_pp90x2", "inference_SPARSE_regular_pp0x1"]
 seeds = [0, 1, 2, 3, 4]
 metrics = ["duration", "emissions", "emissions_rate", "cpu_power", "gpu_power", "ram_power", "cpu_energy", "gpu_energy",
            "ram_energy", "energy_consumed"]
 y_titles = ["Durée [s]", "Émissions de CO2 [kg]", "Taux d'émissions de CO2 [kg/s]", "Puissance CPU [W]", "Puissance GPU [W]", "Puissance RAM [W]", "Énergie CPU [kWh]", "Énergie GPU [kWh]", "Énergie RAM [kWh]", "Énergie consommée [kWh]"]
-# legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
-legends = ["Élagage 90%", "Sans élagage"]
+legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
+# legends = ["Élagage 90%", "Sans élagage"]
 
 
 # Plots vs nb_seen_images
