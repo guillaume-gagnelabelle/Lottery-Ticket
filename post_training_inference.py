@@ -32,14 +32,10 @@ def test_sparse(model, test_loader, criterion):
     test_loss = 0
     correct = 0
     with torch.no_grad():
-        # Convert model's weight matrices to sparse representations
-        for name, param in model.named_parameters():
-            if "weight" in name:
-                param.data = torch_sparse.as_sparse(param.data)
-
+    
         for data, target in test_loader:
             data, target = data.to(args.device), target.to(args.device)
-            output = model(data)
+            output = model.forward_sparse(data)
             test_loss += criterion(output, target).item()
             pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
             correct += pred.eq(target.data.view_as(pred)).sum().item()
@@ -60,7 +56,7 @@ if __name__ == "__main__":
 
     for seed in [0, 1, 2, 3, 4]:
 
-        projects = [f"inference_NEW_lt_pp68x3_seed{seed}", f"inference_NEW_lt_pp90x2_seed{seed}", f"inference_NEW_regular_pp0x1_seed{seed}"]
+        projects = [f"logs_NEW_lt_pp68x3_seed{seed}", f"logs_NEW_lt_pp90x2_seed{seed}", f"logs_NEW_regular_pp0x1_seed{seed}"]
         model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[0]}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
         model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[1]}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
         model_regular_0x1 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[2]}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]  # not pruned
@@ -74,7 +70,7 @@ if __name__ == "__main__":
                                        measure_power_secs=1,
                                        tracking_mode="process",
                                        log_level="critical",
-                                       output_dir=f"saves/{args.arch_type}/{args.dataset}/inference_v2/",
+                                       output_dir=f"saves/{args.arch_type}/{args.dataset}/inference_sparse/",
                                        output_file=projects[idx]+".csv",
                                        save_to_logger=True
                                        )

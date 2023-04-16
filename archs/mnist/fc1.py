@@ -17,5 +17,20 @@ class fc1(nn.Module):
         x = torch.flatten(x, 1)
         x = self.classifier(x)
         return x
+    
+    def forward_sparse(self, x):
+        x = torch.flatten(x, 1)
+        
+        for i, layer in enumerate(self.classifier):
+            if isinstance(layer, nn.Linear):
+                weight = layer.weight.to_sparse()
+                bias = layer.bias
+                x = torch.sparse.mm(weight, x.t()).add_(bias[:, None]).t()
+            else:
+                x = layer(x)
+                
+        return x
+    
+    
 
     
