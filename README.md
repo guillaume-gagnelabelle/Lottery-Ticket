@@ -52,9 +52,9 @@ Lottery-Ticket
 │   │   ├── LeNet5.py
 │   │   └── resnet.py
 │   ├── mnist
-│       ├── fc1.py
-│       ├── LeNet5.py
-│       └── resnet.py
+│   |   ├── fc1.py
+│   |   ├── LeNet5.py
+│   |   └── resnet.py
 |   └── archs_utils.py
 ├── data
 |   └──  data_utils.py
