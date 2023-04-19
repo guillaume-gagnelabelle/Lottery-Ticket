@@ -3,7 +3,13 @@ import torch
 import os
 import seaborn as sns
 import matplotlib.pyplot as plt
-import copy
+
+'''
+ @Author: Guillaume Gagné-Labelle et Meriadec Habib Finoude
+ @Student number: 20174375 et B9592
+ @Date: Avril, 2023
+ @Project: Rentabilisation énergétique des réseaux de neurones - IFT3710 - UdeM
+'''
 
 
 def set_seed(args):

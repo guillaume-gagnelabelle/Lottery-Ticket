@@ -9,6 +9,17 @@ from data.data_utils import getData
 from archs.archs_utils import getModel
 import utils
 
+'''
+ @Author: Gagné-Labelle, Guillaume & Finoude, Meriadec 
+ @Student number: 20174375 & B9592
+ @Date: April, 2023
+ @Project: Rentabilisation énergétique des réseaux de neurones - IFT3710 - UdeM
+ 
+ This code uses the models saved by the lottery_ticket.py file. 
+ It computes 50 000 inferences for MNIST images and tracks their carbon emissions
+'''
+
+
 def test(model, test_loader, criterion):
     model.eval()
     test_loss = 0
@@ -25,12 +36,12 @@ def test(model, test_loader, criterion):
 
     return test_loss, accuracy
 
+
 def test_sparse(model, test_loader, criterion):
     model.eval()
     test_loss = 0
     correct = 0
     with torch.no_grad():
-    
         for data, target in test_loader:
             data, target = data.to(args.device), target.to(args.device)
             output = model.forward_sparse(data)
@@ -43,7 +54,6 @@ def test_sparse(model, test_loader, criterion):
     return test_loss, accuracy
 
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch_size", default=512, type=int)
@@ -54,23 +64,31 @@ if __name__ == "__main__":
 
     for seed in [0, 1, 2, 3, 4]:
 
-        proj_names = [f"inference_sparse_lt_pp68x3_seed{seed}", f"inference_sparse_lt_pp90x2_seed{seed}", f"inference_sparse_pp0x1_seed{seed}"]
-        projects = [f"logs_NEW_lt_pp68x3_seed{seed}", f"logs_NEW_lt_pp90x2_seed{seed}", f"logs_NEW_regular_pp0x1_seed{seed}"]
-        model_pruned_68x3 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[0]}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
-        model_pruned_90x2 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[1]}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]
-        model_regular_0x1 = torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[2]}_co2False_{args.dataset}.pt", map_location=torch.device(args.device))["final_state_dict"]  # not pruned
+        proj_names = [f"TEST_inference_sparse_lt_pp68x3_seed{seed}", f"TEST_inference_sparse_lt_pp90x2_seed{seed}",
+                      f"TEST_inference_sparse_pp0x1_seed{seed}"]
+        projects = [f"logs_NEW_lt_pp68x3_seed{seed}", f"logs_NEW_lt_pp90x2_seed{seed}",
+                    f"logs_NEW_regular_pp0x1_seed{seed}"]
+        model_pruned_68x3 = torch.load(
+            f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[0]}_co2False_{args.dataset}.pt",
+            map_location=torch.device(args.device))["final_state_dict"]
+        model_pruned_90x2 = torch.load(
+            f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[1]}_co2False_{args.dataset}.pt",
+            map_location=torch.device(args.device))["final_state_dict"]
+        model_regular_0x1 = torch.load(
+            f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[2]}_co2False_{args.dataset}.pt",
+            map_location=torch.device(args.device))["final_state_dict"]  # not pruned
 
         _, _, data_loader = getData(args)
         criterion = nn.CrossEntropyLoss()
 
-        model = getModel(args).to(args.device)
+        model = getModel(args)
         for idx, model_state in enumerate([model_pruned_68x3, model_pruned_90x2, model_regular_0x1]):
             tracker = EmissionsTracker(project_name=projects[idx],
                                        measure_power_secs=1,
                                        tracking_mode="process",
                                        log_level="critical",
                                        output_dir=f"saves/{args.arch_type}/{args.dataset}/inference_sparse/",
-                                       output_file=proj_names[idx]+".csv",
+                                       output_file=proj_names[idx] + ".csv",
                                        save_to_logger=True
                                        )
             tracker.start()
@@ -89,7 +107,7 @@ if __name__ == "__main__":
                     model.to(args.device)
                     test_loss[i], test_acc[i] = test(model, data_loader, criterion)
                 else:
-                    args.device = "cpu"
+                    args.device = "cuda"
                     model.to(args.device)
                     test_loss[i], test_acc[i] = test_sparse(model, data_loader, criterion)
 
