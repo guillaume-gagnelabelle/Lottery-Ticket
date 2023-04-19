@@ -1,7 +1,13 @@
 import torch
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
-import numpy as np
+
+'''
+ @Author: Guillaume Gagné-Labelle et Meriadec Habib Finoude
+ @Student number: 20174375 et B9592
+ @Date: Avril, 2023
+ @Project: Rentabilisation énergétique des réseaux de neurones - IFT3710 - UdeM
+'''
 
 
 def getData(args, train_percent=0.7, val_percent=0.15):

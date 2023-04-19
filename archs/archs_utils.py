@@ -3,6 +3,12 @@ import torch
 import torch.nn as nn
 import torch.nn.init as init
 
+'''
+ @Author: Guillaume Gagné-Labelle et Meriadec Habib Finoude
+ @Student number: 20174375 et B9592
+ @Date: Avril, 2023
+ @Project: Rentabilisation énergétique des réseaux de neurones - IFT3710 - UdeM
+'''
 
 def getModel(args):
     if args.dataset == "mnist":

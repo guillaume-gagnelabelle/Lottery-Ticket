@@ -4,6 +4,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from itertools import zip_longest
 
+'''
+ @Author: Gagné-Labelle, Guillaume & Finoude, Meriadec 
+ @Student number: 20174375 & B9592
+ @Date: April, 2023
+ @Project: Rentabilisation énergétique des réseaux de neurones - IFT3710 - UdeM
+ 
+ This code uses the results of the lottery_ticket.py file. 
+ It graphs the carbon emission of the saved models.
+'''
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10")
 parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5")
@@ -13,8 +22,11 @@ args = parser.parse_args()
 logs = ["logs_NEW_lt_pp68x3", "logs_NEW_lt_pp90x2", "logs_NEW_regular_pp0x1"]
 legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
 
-metrics = ["duration", "emissions", "emissions_rate", "cpu_power", "gpu_power", "ram_power", "cpu_energy", "gpu_energy", "ram_energy", "energy_consumed"]
-y_titles = ["Durée [s]", "Émissions de CO2 [kg]", "Taux d'émissions de CO2 [kg/s]", "Puissance CPU [W]", "Puissance GPU [W]", "Puissance RAM [W]", "Énergie CPU [kWh]", "Énergie GPU [kWh]", "Énergie RAM [kWh]", "Énergie consommée [kWh]"]
+metrics = ["duration", "emissions", "emissions_rate", "cpu_power", "gpu_power", "ram_power", "cpu_energy", "gpu_energy",
+           "ram_energy", "energy_consumed"]
+y_titles = ["Durée [s]", "Émissions de CO2 [kg]", "Taux d'émissions de CO2 [kg/s]", "Puissance CPU [W]",
+            "Puissance GPU [W]", "Puissance RAM [W]", "Énergie CPU [kWh]", "Énergie GPU [kWh]", "Énergie RAM [kWh]",
+            "Énergie consommée [kWh]"]
 seeds = [0, 1, 2, 3, 4]
 
 # Plots vs nb_seen_images

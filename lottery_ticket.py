@@ -10,10 +10,23 @@ import time
 import utils
 from data import data_utils
 from archs import archs_utils
-from torch import sparse
+
+'''
+ @Author: Gagné-Labelle, Guillaume & Finoude, Meriadec 
+ - Inspired heavily from https://github.com/rahulvigneswaran/Lottery-Ticket-Hypothesis-in-Pytorch
+ @Student number: 20174375 & B9592
+ @Date: April, 2023
+ @Project: Rentabilisation énergétique des réseaux de neurones - IFT3710 - UdeM
+ 
+ This program is an extension of rahulvigneswaran/Lottery-Ticket-Hypothesis-in-Pytorch. The adaptation adds a carbon
+ emission tracker to keep track of the emissions of sparse neural networks. The repository contains a Pytorch 
+ implementation of the paper "The Lottery Ticket Hypothesis: Finding Sparse, Trainable, Neural Networks" by Jonathan 
+ Frankle and Michael Carbin.
+'''
 
 
 def main(args, ITE=0):
+
 
     args.seed = ITE
     args.nb_images_seen = 0
@@ -90,10 +103,11 @@ def main(args, ITE=0):
                     best_accuracy = test_accuracy
                     best_state_dict = copy.deepcopy(model.state_dict())
 
-            # ----------------------------------- CORE --------- TRAINING ---------------------------------------------
+            # -------------------------------- TRAINING CORE | LOTTERY-TICKET ------------------------------------------
             train_loss, train_accuracy = train(model, train_loader, optimizer, criterion, args)
             args.logs["train_loss"][args.nb_images_seen] = train_loss
             args.logs["train_accuracy"][args.nb_images_seen] = train_accuracy
+            # ----------------------------------------------------------------------------------------------------------
 
             # Frequency for Printing Accuracy and Loss
             if iter_ % args.print_freq == 0:
@@ -133,6 +147,7 @@ def train(model, train_loader, optimizer, criterion, args):
         optimizer.zero_grad()
         imgs, targets = imgs.to(args.device), targets.to(args.device)
         output = model(imgs)
+        # output = model.forward_sparse(imgs)
         loss = criterion(output, targets)
         train_loss += loss.item()
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
@@ -151,8 +166,8 @@ def train(model, train_loader, optimizer, criterion, args):
                     p.grad.data = grad_tensor
 
                     # Convert the pruned weights to a sparse tensor
-                    sparse_weights = sparse.FloatTensor(p.data._indices(), p.data._values(), p.data.size())
-                    p.data = sparse_weights
+                    # sparse_weights = sparse.FloatTensor(p.data._indices(), p.data._values(), p.data.size())
+                    # p.data = sparse_weights
         # ----------------------- END OF PRUNING ---------------------------------
         optimizer.step()
 

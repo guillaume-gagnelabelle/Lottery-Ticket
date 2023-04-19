@@ -1,86 +1,70 @@
-# Lottery Ticket Hypothesis in Pytorch 
+# Hypothèse du billet de lotterie gagnant en Pytorch
+(Adaptation de https://github.com/rahulvigneswaran/Lottery-Ticket-Hypothesis-in-Pytorch pour la quantification énergétique des réseaux de neurones éparses)
 
-This repository contains a **Pytorch** implementation of the paper [The Lottery Ticket Hypothesis: Finding Sparse, Trainable Neural Networks](https://arxiv.org/abs/1803.03635) by [Jonathan Frankle](https://github.com/jfrankle) and [Michael Carbin](https://people.csail.mit.edu/mcarbin/) that can be **easily adapted to any model/dataset**.
+Ce répositoire contient un implémentation **Pytorch** de l'article [The Lottery Ticket Hypothesis: Finding Sparse, Trainable Neural Networks](https://arxiv.org/abs/1803.03635) par [Jonathan Frankle](https://github.com/jfrankle) et [Michael Carbin](https://people.csail.mit.edu/mcarbin/).
 		
-## Requirements
+## Dépendances
 ```
 pip3 install -r requirements.txt
 ```
-## How to run the code ? 
-### Using datasets/architectures included with this repository :
+## Exécution
 ```
 python3 lottery_ticket.py --arch_type=fc1 --dataset=mnist --prune_percent=90 --prune_iterations=2
 ```
 
-- `--arch_type`	 : Type of architecture
-	- Options : `fc1` - Simple fully connected network, `lenet5` - LeNet5,  `resnet18` - Resnet18,
-	- Default : `fc1`
-- `--dataset`	: Choice of dataset 
+- `--arch_type`	 : Type d'architecture
+	- Options : `fc1` - Réseau de neurones dense, `lenet5` - LeNet5,  `resnet18` - Resnet18,
+	- Par défaut : `fc1`
+- `--dataset`	: Choix du jeu de données 
 	- Options : `mnist`, `cifar10` 
-	- Default : `mnist`
-- `--prune_percent`	: Percentage of weight to be pruned after each cycle. 
-	- Default : `90`
-- `--prune_iterations`	: Number of cycle of pruning that should be done (1 for no pruning). 
-	- Default : `2`
-- `--lr`	: Learning rate 
-	- Default : `1.2e-3`
-- `--batch_size`	: Batch size 
-	- Default : `64`
-- `--end_iter`	: Number of Epochs 
-	- Default : `32`
-- `--print_freq`	: Frequency for printing accuracy and loss 
-	- Default : `1`
-- `--valid_freq`	: Frequency for Validation 
-	- Default : `1`
-
-### Using datasets/architectures that are not included with this repository :
-- Adding a new architecture :
-	- For example, if you want to add an architecture named `new_model` with `mnist` dataset compatibility. 
-		- Go to `/archs/mnist/` directory and create a file `new_model.py`.
-		- Now paste your **Pytorch compatible** model inside `new_model.py`.
-		- **IMPORTANT** : Make sure the *input size*, *number of classes*, *number of channels*, *batch size* in your `new_model.py` matches with the corresponding dataset that you are adding (in this case, it is `mnist`).
-		- Now open `main.py` and go to `line 36` and look for the comment `# Data Loader`. Now find your corresponding dataset (in this case, `mnist`) and add `new_model` at the end of the line `from archs.mnist import AlexNet, LeNet5, fc1, vgg, resnet`.
-		- Now go to `line 82` and add the following to it :
-			```
-			elif args.arch_type == "new_model":
-        		model = new_model.new_model_name().to(device)
-			``` 
-			Here, `new_model_name()` is the name of the model that you have given inside `new_model.py`.
-- Adding a new dataset :
-	- For example, if you want to add a dataset named `new_dataset` with `fc1` architecture compatibility.
-		- Go to `/archs` and create a directory named `new_dataset`.
-		- Now go to /archs/new_dataset/` and add a file named `fc1.py` or copy paste it from existing dataset folder.
-		- **IMPORTANT** : Make sure the *input size*, *number of classes*, *number of channels*, *batch size* in your `new_model.py` matches with the corresponding dataset that you are adding (in this case, it is `new_dataset`).
-		- Now open `main.py` and goto `line 58` and add the following to it :
-			```
-			elif args.dataset == "cifar100":
-        		traindataset = datasets.new_dataset('../data', train=True, download=True, transform=transform)
-        		testdataset = datasets.new_dataset('../data', train=False, transform=transform)from archs.new_dataset import fc1
-			``` 
-			**Note** that as of now, you can only add dataset that are [natively available in Pytorch](https://pytorch.org/docs/stable/torchvision/datasets.html). 
+	- Par défaut : `mnist`
+- `--prune_percent`	: Pourcentage des poids qui seront élaguer à chaque itération 
+	- Par défaut : `90`
+- `--prune_iterations`	: Nombre n de cycles d'entraînement qui sera effectué (1 pour aucun élaguag, n-1 élagage en général) 
+	- Par défaut : `2`
+- `--lr`	: Taux d'apprentissage
+	- Par défaut : `1e-04`
+- `--decay`	: Régularisation L2 ("weight decay")
+	- Par défaut : `1e-05`
+- `--batch_size`	: Taille du lot 
+	- Par défaut : `512`
+- `--end_iter`	: Nombre d'époques d'entraînement d'un cycle
+	- Par défaut : `32`
+- `--print_freq`	: Fréquence d'impression des métriques de performance (précision, fonction de perte) dans le terminal
+	- Par défaut : `1`
+- `--valid_freq`	: Fréquence d'évaluation des performances du modèle
+	- Par défaut : `1`
+- `--train_type`	: type d'entraînement effectué
+	- Options : `lt` (Lottery Ticket), `regular` (rétropropagation classique: équivalent à --prune_percent 0 --prune_iterations 1)
+	- Par défaut : `lt`
+- `--co2_tracking_mode` : Active la sonde de traquage d'émission de CO2
+	- Note : désactive toutes les évaluation du modèle lors de l'entraînement
+	- Par défaut : False (`store_true`)
 
 
 
-## Repository Structure
+## Structure du répositoire
 ```
-Lottery-Ticket-Hypothesis-in-Pytorch
+Lottery-Ticket
 ├── archs
 |   ├── archs_utils.py
 │   ├── cifar10
-│   │   ├── fc1.py
 │   │   ├── LeNet5.py
 │   │   └── resnet.py
-│   └── mnist
-│       ├── fc1.py
-│       ├── LeNet5.py
-│       └── resnet.py
+│   ├── mnist
+│   |   ├── fc1.py
+│   |   ├── LeNet5.py
+│   |   └── resnet.py
+|   └── archs_utils.py
 ├── data
+|   └──  data_utils.py
 ├── inference_emission.py
-├── lottery_ticket.py
-├── lottery_ticket_emissions.py
-├── lottery_ticket_performance.py
+├── lottery_ticket.py (Entraînement - main)
+├── lottery_ticket_emissions.py (Graphiques entraînement - émissions CO2)
+├── lottery_ticket_performance.py (Graphiques entraînement - performances)
 ├── plots
-├── post_training_inference.py
+├── post_training_inference.py (Inférence - main)
+├── post_training_inference_emissions.py (Graphiques inférence)
 ├── README.md
 ├── requirements.txt
 ├── saves
@@ -88,5 +72,5 @@ Lottery-Ticket-Hypothesis-in-Pytorch
 
 ```
 
-## Acknowledgement 
-Parts of code were borrowed from [ktkth5](https://github.com/ktkth5/lottery-ticket-hyopothesis).
+## Reconnaissance 
+Une grande partie du code a été emprunté de [rahulvigneswaran](https://github.com/rahulvigneswaran/Lottery-Ticket-Hypothesis-in-Pytorch).

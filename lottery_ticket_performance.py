@@ -4,6 +4,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import argparse
 
+'''
+ @Author: Gagné-Labelle, Guillaume & Finoude, Meriadec 
+ @Student number: 20174375 & B9592
+ @Date: April, 2023
+ @Project: Rentabilisation énergétique des réseaux de neurones - IFT3710 - UdeM
+ 
+ This code uses the results of the lottery_ticket.py file. 
+ It graphs the performance of the saved models.
+'''
+
 parser = argparse.ArgumentParser()
 parser.add_argument("--dataset", default="mnist", type=str, help="mnist | cifar10")
 parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5")
@@ -16,11 +26,11 @@ y_label = ["Paramètres non-nuls [%]", "Erreur de test", "Précision de test  [%
            "Précision d'entraînement [%]", "Erreur de validation", "Précision de validation [%]"]
 
 if args.perf_type == "lottery_ticket":
-    logs = ["logs_SPARSE_lt_pp68x3", "logs_SPARSE_lt_pp90x2", "logs_SPARSE_regular_pp0x1"]
-    logs = ["logs_SPARSE_lt_pp90x2", "logs_SPARSE_regular_pp0x1"]  # temp
+    logs = ["logs_NEW_lt_pp68x3", "logs_NEW_lt_pp90x2", "logs_NEW_regular_pp0x1"]
+    # logs = ["logs_SPARSE_lt_pp90x2", "logs_SPARSE_regular_pp0x1"]  # temp
     seeds = [0, 1, 2, 3, 4]
     legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
-    legends = ["Élagage 90%", "Sans élagage"]  # temp
+    # legends = ["Élagage 90%", "Sans élagage"]  # temp
 elif args.perf_type == "hyperparameter":
     logs = ["lr0.01_wd1e-05", "lr0.001_wd1e-05", "lr0.0001_wd1e-05", "lr1e-05_wd1e-05",
             "lr0.01_wd0.0001", "lr0.001_wd0.0001", "lr0.0001_wd0.0001", "lr1e-05_wd0.0001",
@@ -40,7 +50,7 @@ for log in logs:
     dicts = []
     for seed in seeds:
         if args.perf_type == "lottery_ticket":
-            dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/sparse/{log}_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device('cpu')))
+            dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{log}_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device('cpu')))
         elif args.perf_type == "hyperparameter":
             dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/hyperSearch/logs_regular_pp0x1_seed{seed}_co2False_{log}.pt", map_location=torch.device('cpu')))
 
