@@ -19,8 +19,8 @@ parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5")
 args = parser.parse_args()
 
 
-logs = ["cpu2_inference_sparse_lt_pp68x3", "cpu2_inference_sparse_lt_pp90x2", "cpu2_inference_sparse_pp0x1"]
-# logs = ["gpu_inference_sparse_lt_pp68x3", "gpu_inference_sparse_lt_pp90x2", "gpu_inference_sparse_pp0x1"]
+# logs = ["cpu_inference_sparse_lt_pp68x3", "cpu_inference_sparse_lt_pp90x2", "cpu_inference_sparse_pp0x1"]
+logs = ["gpu_inference_sparse_lt_pp68x3", "gpu_inference_sparse_lt_pp90x2", "gpu_inference_sparse_pp0x1"]
 seeds = [0, 1, 2, 3, 4]
 metrics = ["duration", "emissions", "emissions_rate", "cpu_power", "gpu_power", "ram_power", "cpu_energy", "gpu_energy",
            "ram_energy", "energy_consumed"]
@@ -49,7 +49,8 @@ for idx, metric in enumerate(metrics):
     plt.xlabel("nombre d'inférences")
     plt.grid()
     plt.legend()
-    plt.show()
+    plt.savefig(f"plots/final/{metrics[idx]}_nbInference.png")
+    # plt.show()
 
 # Plots vs time
 for idx, metric in enumerate(metrics):
@@ -67,4 +68,5 @@ for idx, metric in enumerate(metrics):
     plt.xlabel("Durée [s]")
     plt.grid()
     plt.legend()
-    plt.show()
+    plt.savefig(f"plots/final/{metrics[idx]}_duree.png")
+    # plt.show()
