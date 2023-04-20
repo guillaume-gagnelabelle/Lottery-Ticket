@@ -64,18 +64,16 @@ if __name__ == "__main__":
 
     for seed in [0, 1, 2, 3, 4]:
 
-        proj_names = [f"TEST_inference_sparse_lt_pp68x3_seed{seed}", f"TEST_inference_sparse_lt_pp90x2_seed{seed}",
-                      f"TEST_inference_sparse_pp0x1_seed{seed}"]
-        projects = [f"logs_NEW_lt_pp68x3_seed{seed}", f"logs_NEW_lt_pp90x2_seed{seed}",
-                    f"logs_NEW_regular_pp0x1_seed{seed}"]
+        proj_names = [f"logs_pp68x3_seed{seed}", f"logs_pp90x2_seed{seed}", f"logs_pp0x1_seed{seed}"]
+        projects = [f"logs_FINAL_lt_pp68x3_seed{seed}", f"logs_FINAL_lt_pp90x2_seed{seed}", f"logs_FINAL_regular_pp0x1_seed{seed}"]
         model_pruned_68x3 = torch.load(
-            f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[0]}_co2False_{args.dataset}.pt",
+            f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/final_training/{projects[0]}_co2False_{args.dataset}.pt",
             map_location=torch.device(args.device))["final_state_dict"]
         model_pruned_90x2 = torch.load(
-            f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[1]}_co2False_{args.dataset}.pt",
+            f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/final_training/{projects[1]}_co2False_{args.dataset}.pt",
             map_location=torch.device(args.device))["final_state_dict"]
         model_regular_0x1 = torch.load(
-            f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/new_run_v2/{projects[2]}_co2False_{args.dataset}.pt",
+            f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/final_training/{projects[2]}_co2False_{args.dataset}.pt",
             map_location=torch.device(args.device))["final_state_dict"]  # not pruned
 
         _, _, data_loader = getData(args)
@@ -87,7 +85,7 @@ if __name__ == "__main__":
                                        measure_power_secs=1,
                                        tracking_mode="process",
                                        log_level="critical",
-                                       output_dir=f"saves/{args.arch_type}/{args.dataset}/inference_sparse/",
+                                       output_dir=f"saves/{args.arch_type}/{args.dataset}/final_inference/",
                                        output_file=proj_names[idx] + ".csv",
                                        save_to_logger=True
                                        )
@@ -103,11 +101,11 @@ if __name__ == "__main__":
             test_acc = np.zeros(10)
             for i in range(10):
                 if idx == 2:
-                    args.device = "cuda"
+                    args.device = "cpu"
                     model.to(args.device)
                     test_loss[i], test_acc[i] = test(model, data_loader, criterion)
                 else:
-                    args.device = "cuda"
+                    args.device = "cpu"
                     model.to(args.device)
                     test_loss[i], test_acc[i] = test_sparse(model, data_loader, criterion)
 
