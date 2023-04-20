@@ -52,8 +52,8 @@ for idx, metric in enumerate(metrics):
     plt.xlabel("Nombre d'images d'entraînement")
     plt.grid()
     plt.legend()
-    plt.savefig(f"plots/final/training/emissions/{metrics[idx]}_time.png")
-    # plt.show()
+    # plt.savefig(f"plots/final/training/emissions/{metrics[idx]}_time.png")
+    plt.show()
 
 # Plots vs time
 for idx, metric in enumerate(metrics):
@@ -76,5 +76,5 @@ for idx, metric in enumerate(metrics):
     plt.xlabel("Durée [s]")
     plt.grid()
     plt.legend()
-    plt.savefig(f"plots/final/training/emissions/{metrics[idx]}_time.png")
-    # plt.show()
+    # plt.savefig(f"plots/final/training/emissions/{metrics[idx]}_time.png")
+    plt.show()

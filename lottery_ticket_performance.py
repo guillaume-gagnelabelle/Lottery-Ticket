@@ -88,8 +88,8 @@ for idx, metric in enumerate(metrics):
         print(metric, ": ", ys_mean[idx + i * len(metrics)][-1], "±", ys_std[idx + i * len(metrics)][-1])
     plt.grid()
     plt.legend()
-    plt.savefig(f"plots/final/training/performance/{metrics[idx]}_nbInference.png")
-    # plt.show()
+    # plt.savefig(f"plots/final/training/performance/{metrics[idx]}_nbInference.png")
+    plt.show()
 
 # Plots of time
 for idx, metric in enumerate(metrics):
@@ -104,5 +104,5 @@ for idx, metric in enumerate(metrics):
                          alpha=0.3)
     plt.grid()
     plt.legend()
-    plt.savefig(f"plots/final/training/performance/{metrics[idx]}_time.png")
-    # plt.show()
+    # plt.savefig(f"plots/final/training/performance/{metrics[idx]}_time.png")
+    plt.show()
