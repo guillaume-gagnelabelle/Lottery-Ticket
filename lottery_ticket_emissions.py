@@ -20,7 +20,7 @@ parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5")
 args = parser.parse_args()
 
 
-logs = ["logs_FINAL_lt_pp68x3", "logs_FINAL_lt_pp90x2", "logs_FINAL_regular_pp0x1"]
+logs = ["logs_pp68x3", "logs_pp90x2", "logs_pp0x1"]
 legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
 
 metrics = ["duration", "emissions", "emissions_rate", "cpu_power", "gpu_power", "ram_power", "cpu_energy", "gpu_energy",
@@ -37,7 +37,7 @@ for idx, metric in enumerate(metrics):
         x = []
         y = []
         for seed in seeds:
-            emissions = pd.read_csv(f"saves/{args.arch_type}/{args.dataset}/final_training/{log}_seed{seed}_co2True_{args.dataset}.csv").to_dict()
+            emissions = pd.read_csv(f"saves/{args.arch_type}/{args.dataset}/final_training_v2/{log}_seed{seed}_co2True_{args.dataset}.csv").to_dict()
             x.append(list(emissions[metric].keys()))
             y.append(list(emissions[metric].values()))
 
