@@ -35,11 +35,11 @@ gpu_tvalue2, gpu_pvalue2 = ttest_ind(group_gpu_90x2, group_gpu_0x1)
 
 #Print the results
 print(f"T-test for CPU emissions:")
-print(f"Group cpu_inf_pp68x3 vs. cpu_inf_pp0x1: t-value = {cpu_tvalue1:.3f}, p-value = {cpu_pvalue1:.5f}")
-print(f"Group cpu_inf_pp90x2 vs. cpu_inf_pp0x1: t-value = {cpu_tvalue2:.3f}, p-value = {cpu_pvalue2:.5f}")
+print(f"Group cpu_inf_pp68x3 vs. cpu_inf_pp0x1: t-value = {cpu_tvalue1:.3f}, p-value = {cpu_pvalue1:.6f}")
+print(f"Group cpu_inf_pp90x2 vs. cpu_inf_pp0x1: t-value = {cpu_tvalue2:.3f}, p-value = {cpu_pvalue2:.6f}")
 
 print("================================")
 
 print(f"T-test for GPU emissions:")
-print(f"Group gpu_inf_pp68x3 vs. gpu_inf_pp0x1: t-value = {gpu_tvalue1:.3f}, p-value = {gpu_pvalue1:.5f}")
-print(f"Group gpu_inf_pp90x2 vs. gpu_inf_pp0x1: t-value = {gpu_tvalue2:.3f}, p-value = {gpu_pvalue2:.5f}")
+print(f"Group gpu_inf_pp68x3 vs. gpu_inf_pp0x1: t-value = {gpu_tvalue1:.3f}, p-value = {gpu_pvalue1:.6f}")
+print(f"Group gpu_inf_pp90x2 vs. gpu_inf_pp0x1: t-value = {gpu_tvalue2:.3f}, p-value = {gpu_pvalue2:.6f}")
