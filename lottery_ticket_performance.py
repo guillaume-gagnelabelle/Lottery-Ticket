@@ -26,7 +26,7 @@ y_label = ["Paramètres non-nuls [%]", "Erreur de test", "Précision de test  [%
            "Précision d'entraînement [%]", "Erreur de validation", "Précision de validation [%]"]
 
 if args.perf_type == "lottery_ticket":
-    logs = ["logs_FINAL_lt_pp68x3", "logs_FINAL_lt_pp90x2", "logs_FINAL_regular_pp0x1"]
+    logs = ["logs_pp68x3", "logs_pp90x2", "logs_pp0x1"]
     # logs = ["logs_SPARSE_lt_pp90x2", "logs_SPARSE_regular_pp0x1"]  # temp
     seeds = [0, 1, 2, 3, 4]
     legends = ["Élagage 2x68%", "Élagage 90%", "Sans élagage"]
@@ -50,7 +50,7 @@ for log in logs:
     dicts = []
     for seed in seeds:
         if args.perf_type == "lottery_ticket":
-            dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/final_training/{log}_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device('cpu')))
+            dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/final_training_v2/{log}_seed{seed}_co2False_{args.dataset}.pt", map_location=torch.device('cpu')))
         elif args.perf_type == "hyperparameter":
             dicts.append(torch.load(f"{os.getcwd()}/saves/{args.arch_type}/{args.dataset}/hyperSearch/logs_regular_pp0x1_seed{seed}_co2False_{log}.pt", map_location=torch.device('cpu')))
 

@@ -19,8 +19,8 @@ parser.add_argument("--arch_type", default="fc1", type=str, help="fc1 | lenet5")
 args = parser.parse_args()
 
 
-logs = ["cpu_inf_pp68x3", "cpu_inf_pp90x2", "cpu_inf_pp0x1"]
-# logs = ["gpu_inf_pp68x3", "gpu_inf_pp90x2", "gpu_inf_pp0x1"]
+# logs = ["cpu_inf_pp68x3", "cpu_inf_pp90x2", "cpu_inf_pp0x1"]
+logs = ["gpu_inf_pp68x3", "gpu_inf_pp90x2", "gpu_inf_pp0x1"]
 seeds = [0, 1, 2, 3, 4]
 metrics = ["duration", "emissions", "emissions_rate", "cpu_power", "gpu_power", "ram_power", "cpu_energy", "gpu_energy",
            "ram_energy", "energy_consumed"]
@@ -64,7 +64,6 @@ for idx, metric in enumerate(metrics):
         y = np.array(y)
         plt.plot(x, y.mean(0), label=legends[i])
         plt.fill_between(x, y.mean(0) - y.std(0), y.mean(0) + y.std(0), alpha=0.3)
- 
     plt.ylabel(y_titles[idx])
     plt.xlabel("Durée [s]")
     plt.grid()

@@ -1,6 +1,13 @@
 import pandas as pd
 from scipy.stats import ttest_ind
 
+'''
+ @Author: Gagné-Labelle, Guillaume & Finoude, Meriadec 
+ @Student number: 20174375 & B9592
+ @Date: April, 2023
+ @Project: Rentabilisation énergétique des réseaux de neurones - IFT3710 - UdeM
+'''
+
 combined_file = 'combined.csv'
 
 # Read the combined file into a pandas dataframe

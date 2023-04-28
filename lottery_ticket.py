@@ -31,7 +31,7 @@ def main(args, ITE=0):
     args.seed = ITE
     args.nb_images_seen = 0
     utils.set_seed(args)
-    project = f"logs_NEW_{args.train_type}_pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_{args.dataset}"
+    project = f"pp{args.prune_percent}x{args.prune_iterations}_seed{args.seed}_co2{args.co2_tracking_mode}_{args.dataset}"
     tracker = EmissionsTracker(project_name=project,
                                measure_power_secs=1,
                                tracking_mode="process",

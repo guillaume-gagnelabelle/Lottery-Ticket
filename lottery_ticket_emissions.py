@@ -62,7 +62,7 @@ for idx, metric in enumerate(metrics):
         x = []
         y = []
         for seed in seeds:
-            emissions = pd.read_csv(f"saves/{args.arch_type}/{args.dataset}/final_training/{log}_seed{seed}_co2True_{args.dataset}.csv").to_dict()
+            emissions = pd.read_csv(f"saves/{args.arch_type}/{args.dataset}/final_training_v2/{log}_seed{seed}_co2True_{args.dataset}.csv").to_dict()
             x.append(list(emissions["duration"].values()))
             y.append(list(emissions[metric].values()))
         x = np.nanmean(np.array(list(zip_longest(*x)), dtype=float), axis=1)
